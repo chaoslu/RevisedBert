@@ -281,6 +281,7 @@ def create_instances_from_document(
           a_end = rng.randint(1, len(current_chunk) - 1)
 
         tokens_a = []
+        sentences_ending_a = []
         for j in range(a_end):
           tokens_a.extend(current_chunk[j])
           sentences_ending_a.append(len(current_chunk[j]))

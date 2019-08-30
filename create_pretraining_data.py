@@ -331,6 +331,9 @@ def create_instances_from_document(
         sentences_ending_a[0] += 1
         sentences_ending_a[-1] += 1
         sentences_ending_b[-1] += 1
+        tf.logging.info("len of last sen in seg A: %d\n" % sentences_ending_a[-1])
+        tf.logging.info("len of last sen in seg B: %d\n" % sentences_ending_b[-1])
+
         sentences_ending = sentences_ending_a.extend(sentences_ending_b)
         sentences_ending = np.cumsum(sentences_ending)
         tf.logging.info("sentence ending: %d\n" % sentences_ending[-1])

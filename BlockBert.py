@@ -133,6 +133,7 @@ class BlockBertModel(object):
                is_training,
                input_ids,
                input_mask=None,
+               sent_wise_mask=None,
                token_type_ids=None,
                use_one_hot_embeddings=False,
                scope=None):
@@ -205,7 +206,7 @@ class BlockBertModel(object):
         self.all_encoder_layers = transformer_model(
             input_tensor=self.embedding_output,
             attention_mask=attention_mask,
-            segment_attention_mask=segment_attention_mask
+            segment_attention_mask=sent_wise_mask,
             hidden_size=config.hidden_size,
             num_hidden_layers=config.num_hidden_layers,
             num_attention_heads=config.num_attention_heads,

@@ -109,12 +109,20 @@ def write_instance_to_example_files(instances, tokenizer, max_seq_length,
     input_ids = tokenizer.convert_tokens_to_ids(instance.tokens)
     input_mask = [1] * len(input_ids)
     segment_ids = list(instance.segment_ids)
+    
+      
+
     assert len(input_ids) <= max_seq_length
 
     while len(input_ids) < max_seq_length:
       input_ids.append(0)
       input_mask.append(0)
       segment_ids.append(0)
+    
+    sent_wise_mask = np.zeros(shape=(max_seq_length,max_seq_length),dtype=int)
+    sent_wise_mask[:len(input_ids),:len(input_ids)] = instance.sentence_wise_mask
+    sent_mask_raw = sent_wise_mask.tostring()
+
 
     assert len(input_ids) == max_seq_length
     assert len(input_mask) == max_seq_length
@@ -139,6 +147,7 @@ def write_instance_to_example_files(instances, tokenizer, max_seq_length,
     features["masked_lm_ids"] = create_int_feature(masked_lm_ids)
     features["masked_lm_weights"] = create_float_feature(masked_lm_weights)
     features["next_sentence_labels"] = create_int_feature([next_sentence_label])
+    features["sentence_wise_mask"] = create_bytes_feature(sent_mask_raw)
 
     tf_example = tf.train.Example(features=tf.train.Features(feature=features))
 
@@ -159,6 +168,8 @@ def write_instance_to_example_files(instances, tokenizer, max_seq_length,
           values = feature.int64_list.value
         elif feature.float_list.value:
           values = feature.float_list.value
+        elif feature.bytes_list.value:
+          values = feature.bytes_list .value
         tf.logging.info(
             "%s: %s" % (feature_name, " ".join([str(x) for x in values])))
 
@@ -175,6 +186,10 @@ def create_int_feature(values):
 
 def create_float_feature(values):
   feature = tf.train.Feature(float_list=tf.train.FloatList(value=list(values)))
+  return feature
+
+def create_bytes_feature(values):
+  feature = tf.train.Feature(bytes_list=tf.train.BytesList(value=list(values)))
   return feature
 
 
@@ -316,15 +331,7 @@ def create_instances_from_document(
         sentences_ending_a[-1] += 1
         sentences_ending_b[-1] += 1
         sentences_ending = sentences_ending_a.extend(sentences_ending_b)
-        sentences_ending = [0].extend(sentences_ending)
         sentences_ending = np.cumsum(sentences_ending)
-
-        sentence_wise_mask = np.zeros([sentences_ending[-1],sentences_ending[-1]])
-        for i in range(len(sentences_ending)):
-          sentence_wise_mask[sentences_ending[i]:sentences_ending[i+1],sentences_ending[i]:sentences_ending[i+1]] = 1
-
-        # ready for exponential adder
-        sentence_wise_mask = (1 - sentence_wise_mask) * -10000
 
 
         tokens = []
@@ -343,6 +350,14 @@ def create_instances_from_document(
           segment_ids.append(1)
         tokens.append("[SEP]")
         segment_ids.append(1)
+
+        assert sentences_ending[-1] == len(tokens)
+        sentence_wise_mask = np.zeros(shape=(sentences_ending[-1],sentences_ending[-1]),dtype=int)
+        for i in range(len(sentences_ending)):
+          sentence_wise_mask[sentences_ending[i]:sentences_ending[i+1],sentences_ending[i]:sentences_ending[i+1]] = 1
+
+        # ready for exponential adder
+        sentence_wise_mask = (1 - sentence_wise_mask) * -10000
 
         (tokens, masked_lm_positions,
          masked_lm_labels) = create_masked_lm_predictions(

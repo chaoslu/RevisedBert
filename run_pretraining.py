@@ -125,14 +125,19 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
     masked_lm_ids = features["masked_lm_ids"]
     masked_lm_weights = features["masked_lm_weights"]
     next_sentence_labels = features["next_sentence_labels"]
+    sent_wise_mask = features["sentence_wise_mask"]
+
+    # decode mask tensor from string mode
+    sent_wise_mask = tf.decode_raw(sent_wise_mask,tf.int64)
 
     is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
-    model = modeling.BertModel(
+    model = modeling.BlockBertModel(
         config=bert_config,
         is_training=is_training,
         input_ids=input_ids,
         input_mask=input_mask,
+        sent_wise_mask=sent_wise_mask,
         token_type_ids=segment_ids,
         use_one_hot_embeddings=use_one_hot_embeddings)
 
@@ -347,6 +352,8 @@ def input_fn_builder(input_files,
             tf.FixedLenFeature([max_predictions_per_seq], tf.float32),
         "next_sentence_labels":
             tf.FixedLenFeature([1], tf.int64),
+        "sentende_wise_mask":
+            tf.FixedLenFeature([1], tf.string),
     }
 
     # For training, we want a lot of parallel reading and shuffling.

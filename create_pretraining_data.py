@@ -70,12 +70,13 @@ class TrainingInstance(object):
   """A single training instance (sentence pair)."""
 
   def __init__(self, tokens, segment_ids, masked_lm_positions, masked_lm_labels,
-               is_random_next):
+               is_random_next,sentence_wise_mask):
     self.tokens = tokens
     self.segment_ids = segment_ids
     self.is_random_next = is_random_next
     self.masked_lm_positions = masked_lm_positions
     self.masked_lm_labels = masked_lm_labels
+    self.sentence_wise_mask = sentence_wise_mask
 
   def __str__(self):
     s = ""
@@ -302,7 +303,7 @@ def create_instances_from_document(
           is_random_next = False
           for j in range(a_end, len(current_chunk)):
             tokens_b.extend(current_chunk[j])
-            sentences_ending_b.append(current_chunk[j])
+            sentences_ending_b.append(len(current_chunk[j]))
         truncate_seq_pair(tokens_a, tokens_b,sentences_ending_a,sentences_ending_b, max_num_tokens, rng)
 
         assert len(tokens_a) >= 1
@@ -321,6 +322,9 @@ def create_instances_from_document(
         sentence_wise_mask = np.zeros([sentences_ending[-1],sentences_ending[-1]])
         for i in range(len(sentences_ending)):
           sentence_wise_mask[sentences_ending[i]:sentences_ending[i+1],sentences_ending[i]:sentences_ending[i+1]] = 1
+
+        # ready for exponential adder
+        sentence_wise_mask = (1 - sentence_wise_mask) * -10000
 
 
         tokens = []
@@ -348,7 +352,8 @@ def create_instances_from_document(
             segment_ids=segment_ids,
             is_random_next=is_random_next,
             masked_lm_positions=masked_lm_positions,
-            masked_lm_labels=masked_lm_labels)
+            masked_lm_labels=masked_lm_labels,
+            sentence_wise_mask=sentence_wise_mask)
         instances.append(instance)
       current_chunk = []
       current_length = 0

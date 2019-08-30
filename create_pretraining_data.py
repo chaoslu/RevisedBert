@@ -459,7 +459,7 @@ def create_masked_lm_predictions(tokens, masked_lm_prob,
   return (output_tokens, masked_lm_positions, masked_lm_labels)
 
 
-def truncate_seq_pair(tokens_a, tokens_b,sentences_ending_a,sentences_ending_b max_num_tokens, rng):
+def truncate_seq_pair(tokens_a, tokens_b,sentences_ending_a,sentences_ending_b,max_num_tokens, rng):
   """Truncates a pair of sequences to a maximum sequence length."""
   while True:
     total_length = len(tokens_a) + len(tokens_b)

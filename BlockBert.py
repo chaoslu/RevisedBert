@@ -587,7 +587,7 @@ def attention_layer(from_tensor,
                     segment_attention_mask=None,
                     num_attention_heads=1,
                     size_per_head=512,
-                    smoothnessindex=3,
+                    smoothness=3,
                     query_act=None,
                     key_act=None,
                     value_act=None,
@@ -730,13 +730,13 @@ def attention_layer(from_tensor,
   	  # query filters
 	  query_filter_upper = tf.layers.dense(
 	      from_tensor_2d,
-	      num_attention_heads * smoothnessindex,
+	      num_attention_heads * smoothness,
 	      activation=query_act,
 	      name="query_filter_upper",
 	      kernel_initializer=create_initializer(initializer_range))
 	  query_filter_lower = tf.layers.dense(
       	  from_tensor_2d,
-      	  num_attention_heads * smoothnessindex,
+      	  num_attention_heads * smoothness,
           activation=query_act,
           name="query_filter_lower",
           kernel_initializer=create_initializer(initializer_range))
@@ -744,13 +744,13 @@ def attention_layer(from_tensor,
 	  # key filters
 	  key_filter_upper = tf.layers.dense(
 	      from_tensor_2d,
-	      num_attention_heads * smoothnessindex,
+	      num_attention_heads * smoothness,
 	      activation=key_act,
 	      name="key_filter_upper",
 	      kernel_initializer=create_initializer(initializer_range))
 	  key_filter_lower = tf.layers.dense(
 	      from_tensor_2d,
-	      num_attention_heads * smoothnessindex,
+	      num_attention_heads * smoothness,
 	      activation=key_act,
 	      name="key_filter_lower",
 	      kernel_initializer=create_initializer(initializer_range))
@@ -758,13 +758,13 @@ def attention_layer(from_tensor,
   	  with tf.variable_scope("layer_%d" % layer_idx):
   	  	query_filter_upper = tf.layers.dense(
 	      from_tensor_2d,
-	      num_attention_heads * smoothnessindex,
+	      num_attention_heads * smoothness,
 	      activation=query_act,
 	      name="query_filter_upper",
 	      kernel_initializer=create_initializer(initializer_range))
 	  	query_filter_lower = tf.layers.dense(
       	  from_tensor_2d,
-      	  num_attention_heads * smoothnessindex,
+      	  num_attention_heads * smoothness,
           activation=query_act,
           name="query_filter_lower",
           kernel_initializer=create_initializer(initializer_range))
@@ -775,7 +775,7 @@ def attention_layer(from_tensor,
   query_filter_lower = tf.math.cumsum(query_filter_lower,axis=-1,reverse=True)
 
   query_filter = tf.math.log((1.0 - query_filter_upper) * query_filter_lower + (1.0 - query_filter_lower) * query_filter_upper)
-  query_filter = tf.tile(tf.expand_dims(query_filter,axis=-1),[1,1,int(size_per_head/smoothnessindex)])
+  query_filter = tf.tile(tf.expand_dims(query_filter,axis=-1),[1,1,int(size_per_head/smoothness)])
   query_filter = tf.reshape(tf.transpose(query_filter,[0,2,1]),[batch_size * from_seq_length,-1])
   query_layer = query_filter + query_layer
   
@@ -785,7 +785,7 @@ def attention_layer(from_tensor,
   key_filter_lower = tf.math.cumsum(key_filter_lower,axis=-1,reverse=True)
 
   key_filter = tf.math.log((1.0 - key_filter_upper) * key_filter_lower + (1.0 - key_filter_lower) * key_filter_upper)
-  key_filter = tf.tile(tf.expand_dims(key_filter,axis=-1),[1,1,int(size_per_head/smoothnessindex)])
+  key_filter = tf.tile(tf.expand_dims(key_filter,axis=-1),[1,1,int(size_per_head/smoothness)])
   key_filter = tf.reshape(tf.transpose(key_filter,[0,2,1]),[batch_size * from_seq_length,-1])
   key_layer = key_filter + key_layer
 
@@ -869,6 +869,7 @@ def transformer_model(input_tensor,
                       attention_mask=None,
                       segment_attention_mask=None,
                       segment_attention_layer=4,
+                      smoothness=3,
                       hidden_size=768,
                       num_hidden_layers=12,
                       num_attention_heads=12,
@@ -957,6 +958,7 @@ def transformer_model(input_tensor,
 	          segment_attention_mask=layer_segment_attention_mask,
 	          num_attention_heads=num_attention_heads,
 	          size_per_head=attention_head_size,
+            smoothness=smoothness,
 	          attention_probs_dropout_prob=attention_probs_dropout_prob,
 	          initializer_range=initializer_range,
 	          do_return_2d_tensor=True,

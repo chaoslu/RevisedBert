@@ -223,11 +223,12 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
   # Remove empty documents
   all_documents = [x for x in all_documents if x]
   rng.shuffle(all_documents)
-  tf.logging.info("length of the document: %d\n" % len(all_documents[-1]))
+  tf.logging.info("length of all document: %d\n" %len(all_documents))
   vocab_words = list(tokenizer.vocab.keys())
   instances = []
   for _ in range(dupe_factor):
     for document_index in range(len(all_documents)):
+      tf.logging.info("index of document: %d\n" %document_index)
       instances.extend(
           create_instances_from_document(
               all_documents, document_index, max_seq_length, short_seq_prob,
@@ -267,7 +268,7 @@ def create_instances_from_document(
   current_length = 0
   i = 0
   while i < len(document):
-    tf.logging.info("length of document: %d\n" %len(document))
+    #tf.logging.info("length of document: %d\n" %len(document))
     segment = document[i]
     current_chunk.append(segment)
     current_length += len(segment)

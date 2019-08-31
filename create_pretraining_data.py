@@ -335,6 +335,7 @@ def create_instances_from_document(
 
         sentences_ending.extend(sentences_ending_a)
         sentences_ending.extend(sentences_ending_b)
+        sentences_ending = [0].extend(sentences_ending)
         sentences_ending = np.cumsum(sentences_ending)
         #tf.logging.info("sentence ending: %d\n" % sentences_ending[-1])
 
@@ -480,12 +481,12 @@ def truncate_seq_pair(tokens_a, tokens_b,sentences_ending_a,sentences_ending_b,m
     if rng.random() < 0.5:
       del trunc_tokens[0]
       trunc_endings[0] -= 1
-      if len(trunc_endings[0]) == 0:
+      if len(trunc_endings) == 0:
         del trunc_endings[0]
     else:
       trunc_tokens.pop()
       trunc_endings[-1] -= 1
-      if len(trunc_endings[0]) == 0:
+      if len(trunc_endings) == 0:
         trunc_endings.pop()
 
 

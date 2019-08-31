@@ -481,12 +481,12 @@ def truncate_seq_pair(tokens_a, tokens_b,sentences_ending_a,sentences_ending_b,m
     if rng.random() < 0.5:
       del trunc_tokens[0]
       trunc_endings[0] -= 1
-      if len(trunc_endings) == 0:
+      if trunc_endings[0] == 0:
         del trunc_endings[0]
     else:
       trunc_tokens.pop()
       trunc_endings[-1] -= 1
-      if len(trunc_endings) == 0:
+      if trunc_endings[-1] == 0:
         trunc_endings.pop()
 
 

@@ -267,6 +267,7 @@ def create_instances_from_document(
   current_length = 0
   i = 0
   while i < len(document):
+    tf.logging.info("length of document: %d\n" %len(document))
     segment = document[i]
     current_chunk.append(segment)
     current_length += len(segment)
@@ -379,7 +380,7 @@ def create_instances_from_document(
       current_chunk = []
       current_length = 0
     i += 1
-    tf.logging.info("finish one document!\n")
+    
 
   return instances
 

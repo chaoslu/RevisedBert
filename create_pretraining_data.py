@@ -335,7 +335,6 @@ def create_instances_from_document(
 
         sentences_ending.extend(sentences_ending_a)
         sentences_ending.extend(sentences_ending_b)
-        sentences_ending = [0].extend(sentences_ending)
         sentences_ending = np.cumsum(sentences_ending)
         #tf.logging.info("sentence ending: %d\n" % sentences_ending[-1])
 
@@ -359,8 +358,8 @@ def create_instances_from_document(
 
         assert sentences_ending[-1] == len(tokens)
         sentence_wise_mask = np.zeros(shape=(sentences_ending[-1],sentences_ending[-1]),dtype=int)
-        for i in range(len(sentences_ending)-1):
-          sentence_wise_mask[sentences_ending[i]:sentences_ending[i+1],sentences_ending[i]:sentences_ending[i+1]] = 1
+        for sid in range(len(sentences_ending)-1):
+          sentence_wise_mask[sentences_ending[sid]:sentences_ending[sid+1],sentences_ending[sid]:sentences_ending[sid+1]] = 1
 
         # ready for exponential adder
         sentence_wise_mask = (1 - sentence_wise_mask) * -10000

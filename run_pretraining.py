@@ -362,7 +362,7 @@ def input_fn_builder(input_files,
         "next_sentence_labels":
             tf.FixedLenFeature([1], tf.int64),
         "sentende_wise_mask":
-            tf.FixedLenFeature([1], tf.int64),
+            tf.FixedLenFeature([max_seq_length], tf.int64),
     }
 
     # For training, we want a lot of parallel reading and shuffling.

@@ -377,7 +377,7 @@ def create_instances_from_document(
             masked_lm_labels=masked_lm_labels,
             sentence_wise_mask=sentence_wise_mask)
         instances.append(instance)
-        tf.logging.info("instance created!\n")
+        #tf.logging.info("instance created!\n")
       current_chunk = []
       current_length = 0
     i += 1

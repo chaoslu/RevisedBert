@@ -122,9 +122,9 @@ def write_instance_to_example_files(instances, tokenizer, max_seq_length,
       input_mask.append(0)
       segment_ids.append(0)
 
-    while len(input_ids) < max_seq_length:
+    while len(sentences_ending) < max_seq_length:
       sentences_ending.append(0)
-    #tf.logging.info("length of sentence ending after padding: %d" %len(sentences_ending))
+    tf.logging.info("length of sentence ending after padding: %d" %len(sentences_ending))
 
 
     assert len(input_ids) == max_seq_length

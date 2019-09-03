@@ -125,10 +125,19 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
     masked_lm_ids = features["masked_lm_ids"]
     masked_lm_weights = features["masked_lm_weights"]
     next_sentence_labels = features["next_sentence_labels"]
-    sent_wise_mask = features["sentence_wise_mask"]
+    sentences_ending = features["sentences_ending"]
 
-    # decode mask tensor from string mode
-    sent_wise_mask = tf.decode_raw(sent_wise_mask,tf.int64)
+    # build sentencewise masks
+    seq_length = input_ids.get_shape_list()
+    sent_wise_mask = np.zeros((seq_length[0],seq_length[0]),dtype=tf.int64)
+    ending_values = list(tf.get_static_value(sentences_ending))
+    for i,ending in ending_values:
+      if ending_values[i+1] != 0:
+        sent_wise_mask[ending_values[i]:ending_values[i+1],ending_values[i]:ending_values[i+1]] = 1
+      else:
+        break
+    sent_wise_mask = tf.constant(sent_wise_mask)
+
 
     is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
@@ -353,7 +362,7 @@ def input_fn_builder(input_files,
         "next_sentence_labels":
             tf.FixedLenFeature([1], tf.int64),
         "sentende_wise_mask":
-            tf.FixedLenFeature([1], tf.string),
+            tf.FixedLenFeature([1], tf.int64),
     }
 
     # For training, we want a lot of parallel reading and shuffling.

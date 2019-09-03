@@ -109,7 +109,9 @@ def write_instance_to_example_files(instances, tokenizer, max_seq_length,
     input_ids = tokenizer.convert_tokens_to_ids(instance.tokens)
     input_mask = [1] * len(input_ids)
     segment_ids = list(instance.segment_ids)
-    sentences_ending = instance.sentences_ending
+    sentences_ending = list(instance.sentences_ending)
+
+    tf.logging.info("length and element of sentence ending : %d,%d" %(len(sentences_ending),sentences_ending[-1]))
     
       
 

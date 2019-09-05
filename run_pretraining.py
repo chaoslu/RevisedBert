@@ -22,6 +22,7 @@ import os
 import BlockBert
 import optimization
 import tensorflow as tf
+import numpy as np
 
 flags = tf.flags
 

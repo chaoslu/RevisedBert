@@ -19,7 +19,7 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import modeling
+import BlockBert
 import optimization
 import tensorflow as tf
 
@@ -128,7 +128,7 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
     sentences_ending = features["sentences_ending"]
 
     # build sentencewise masks
-    seq_length = input_ids.get_shape_list()
+    seq_length = BlockBert.get_shape_list(input_ids)
     sent_wise_mask = np.zeros((seq_length[0],seq_length[0]),dtype=tf.int64)
     ending_values = list(tf.get_static_value(sentences_ending))
     for i,ending in ending_values:
@@ -141,7 +141,7 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
 
     is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
-    model = modeling.BlockBertModel(
+    model = BlockBert.BlockBertModel(
         config=bert_config,
         is_training=is_training,
         input_ids=input_ids,
@@ -167,7 +167,7 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
     scaffold_fn = None
     if init_checkpoint:
       (assignment_map, initialized_variable_names
-      ) = modeling.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
+      ) = BlockBert.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
       if use_tpu:
 
         def tpu_scaffold():
@@ -263,10 +263,10 @@ def get_masked_lm_output(bert_config, input_tensor, output_weights, positions,
       input_tensor = tf.layers.dense(
           input_tensor,
           units=bert_config.hidden_size,
-          activation=modeling.get_activation(bert_config.hidden_act),
-          kernel_initializer=modeling.create_initializer(
+          activation=BlockBert.get_activation(bert_config.hidden_act),
+          kernel_initializer=BlockBert.create_initializer(
               bert_config.initializer_range))
-      input_tensor = modeling.layer_norm(input_tensor)
+      input_tensor = BlockBert.layer_norm(input_tensor)
 
     # The output weights are the same as the input embeddings, but there is
     # an output-only bias for each token.
@@ -305,7 +305,7 @@ def get_next_sentence_output(bert_config, input_tensor, labels):
     output_weights = tf.get_variable(
         "output_weights",
         shape=[2, bert_config.hidden_size],
-        initializer=modeling.create_initializer(bert_config.initializer_range))
+        initializer=BlockBert.create_initializer(bert_config.initializer_range))
     output_bias = tf.get_variable(
         "output_bias", shape=[2], initializer=tf.zeros_initializer())
 
@@ -321,7 +321,7 @@ def get_next_sentence_output(bert_config, input_tensor, labels):
 
 def gather_indexes(sequence_tensor, positions):
   """Gathers the vectors at the specific positions over a minibatch."""
-  sequence_shape = modeling.get_shape_list(sequence_tensor, expected_rank=3)
+  sequence_shape = BlockBert.get_shape_list(sequence_tensor, expected_rank=3)
   batch_size = sequence_shape[0]
   seq_length = sequence_shape[1]
   width = sequence_shape[2]
@@ -425,7 +425,7 @@ def main(_):
   if not FLAGS.do_train and not FLAGS.do_eval:
     raise ValueError("At least one of `do_train` or `do_eval` must be True.")
 
-  bert_config = modeling.BertConfig.from_json_file(FLAGS.bert_config_file)
+  bert_config = BlockBert.BertConfig.from_json_file(FLAGS.bert_config_file)
 
   tf.gfile.MakeDirs(FLAGS.output_dir)
 

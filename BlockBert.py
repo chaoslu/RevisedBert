@@ -946,7 +946,7 @@ def transformer_model(input_tensor,
 	  layer_input = prev_output
 	  layer_segment_attention_mask = None
 	  if layer_idx < segment_attention_layer:
-	    layer_segment_attention_mask = segment_attention_mask
+      layer_segment_attention_mask = segment_attention_mask
     with tf.variable_scope("attention"):
       attention_heads = []
       with tf.variable_scope("self"):

@@ -28,7 +28,7 @@ import six
 import tensorflow as tf
 
 
-class BlockBertConfig(object):
+class BertConfig(object):
 	"""Configuration for `BertModel`."""
 
 	def __init__(self,

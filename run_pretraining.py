@@ -130,8 +130,9 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
 
     # build sentencewise masks
     seq_length = BlockBert.get_shape_list(input_ids)
+    tf.logging.info("length of sequence and batch size:%d,%d" % (seq_length[0],seq_length[1]))
     sent_wise_mask = np.zeros((seq_length[0],seq_length[0]),dtype=int)
-    ending_values = list(tf.get_static_value(sentences_ending))
+    batch = ending_values = tf.get_static_value(sentences_ending)
     for i,ending in ending_values:
       if ending_values[i+1] != 0:
         sent_wise_mask[ending_values[i]:ending_values[i+1],ending_values[i]:ending_values[i+1]] = 1

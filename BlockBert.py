@@ -947,10 +947,10 @@ def transformer_model(input_tensor,
 	  layer_segment_attention_mask = None
 	  if layer_idx < segment_attention_layer:
 	    layer_segment_attention_mask = segment_attention_mask
-  	with tf.variable_scope("attention"):
-  	  attention_heads = []
-  	  with tf.variable_scope("self"):
-  	    attention_head = attention_layer(
+    with tf.variable_scope("attention"):
+      attention_heads = []
+      with tf.variable_scope("self"):
+        attention_head = attention_layer(
   	          from_tensor=layer_input,
   	          to_tensor=layer_input,
   	          layer_idx=layer_idx,
@@ -966,15 +966,15 @@ def transformer_model(input_tensor,
   	          batch_size=batch_size,
   	          from_seq_length=seq_length,
   	          to_seq_length=seq_length)
-  	    attention_heads.append(attention_head)
+        attention_heads.append(attention_head)
 
-	    attention_output = None
-  	  if len(attention_heads) == 1:
-  	    attention_output = attention_heads[0]
-  	  else:
-  	      # In the case where we have other sequences, we just concatenate
-  	      # them to the self-attention head before the projection.
-  	    attention_output = tf.concat(attention_heads, axis=-1)
+      attention_output = None
+      if len(attention_heads) == 1:
+        attention_output = attention_heads[0]
+      else:
+        # In the case where we have other sequences, we just concatenate
+        # them to the self-attention head before the projection.
+        attention_output = tf.concat(attention_heads, axis=-1)
 
   	   # Run a linear projection of `hidden_size` then add a residual
   	   # with `layer_input`.

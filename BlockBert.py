@@ -769,7 +769,7 @@ def attention_layer(from_tensor,
 				activation=query_act,
 				name="query_filter_lower",
 				kernel_initializer=create_initializer(initializer_range))
-			
+
 			key_filter_upper = tf.layers.dense(
 				from_tensor_2d,
 				num_attention_heads * smoothness,
@@ -1013,8 +1013,8 @@ def transformer_model(input_tensor,
 						intermediate_output,
 						hidden_size,
 						kernel_initializer=create_initializer(initializer_range))
-				layer_output = dropout(layer_output, hidden_dropout_prob)
-				layer_output = layer_norm(layer_output + attention_output)
+			layer_output = dropout(layer_output, hidden_dropout_prob)
+			layer_output = layer_norm(layer_output + attention_output)
 			prev_output = layer_output
 			all_layer_outputs.append(layer_output)
 

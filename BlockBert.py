@@ -704,22 +704,22 @@ def attention_layer(from_tensor,
 	
 	with tf.variable_scope("layer_%d" % layer_idx):
 		# `query_layer` = [B*F, N*H]
-	query_layer = tf.layers.dense(
-		from_tensor_2d,
-		num_attention_heads * size_per_head,
-		activation=query_act,
-		name="query",
-		kernel_initializer=create_initializer(initializer_range))
-
-	# `key_layer` = [B*T, N*H]
-	key_layer = tf.layers.dense(
-		to_tensor_2d,
+		query_layer = tf.layers.dense(
+			from_tensor_2d,
 			num_attention_heads * size_per_head,
-			activation=key_act,
-			name="key",
+			activation=query_act,
+			name="query",
 			kernel_initializer=create_initializer(initializer_range))
 
-	# `value_layer` = [B*T, N*H]
+		# `key_layer` = [B*T, N*H]
+		key_layer = tf.layers.dense(
+			to_tensor_2d,
+				num_attention_heads * size_per_head,
+				activation=key_act,
+				name="key",
+				kernel_initializer=create_initializer(initializer_range))
+
+		# `value_layer` = [B*T, N*H]
 		value_layer = tf.layers.dense(
 			to_tensor_2d,
 			num_attention_heads * size_per_head,
@@ -728,7 +728,7 @@ def attention_layer(from_tensor,
 			kernel_initializer=create_initializer(initializer_range))
 
 	if layer_idx < segment_attention_layer:
-			# query filters
+		# query filters
 		query_filter_upper = tf.layers.dense(
 				from_tensor_2d,
 				num_attention_heads * smoothness,
@@ -736,11 +736,11 @@ def attention_layer(from_tensor,
 				name="query_filter_upper",
 				kernel_initializer=create_initializer(initializer_range))
 		query_filter_lower = tf.layers.dense(
-					from_tensor_2d,
-					num_attention_heads * smoothness,
-					activation=query_act,
-					name="query_filter_lower",
-					kernel_initializer=create_initializer(initializer_range))
+				from_tensor_2d,
+				num_attention_heads * smoothness,
+				activation=query_act,
+				name="query_filter_lower",
+				kernel_initializer=create_initializer(initializer_range))
 
 		# key filters
 		key_filter_upper = tf.layers.dense(
@@ -756,19 +756,32 @@ def attention_layer(from_tensor,
 				name="key_filter_lower",
 				kernel_initializer=create_initializer(initializer_range))
 	else:
-			with tf.variable_scope("layer_%d" % layer_idx):
-				query_filter_upper = tf.layers.dense(
+		with tf.variable_scope("layer_%d" % layer_idx):
+			query_filter_upper = tf.layers.dense(
 				from_tensor_2d,
 				num_attention_heads * smoothness,
 				activation=query_act,
 				name="query_filter_upper",
 				kernel_initializer=create_initializer(initializer_range))
 			query_filter_lower = tf.layers.dense(
-					from_tensor_2d,
-					num_attention_heads * smoothness,
-					activation=query_act,
-					name="query_filter_lower",
-					kernel_initializer=create_initializer(initializer_range))
+				from_tensor_2d,
+				num_attention_heads * smoothness,
+				activation=query_act,
+				name="query_filter_lower",
+				kernel_initializer=create_initializer(initializer_range))
+			
+			key_filter_upper = tf.layers.dense(
+				from_tensor_2d,
+				num_attention_heads * smoothness,
+				activation=key_act,
+				name="key_filter_upper",
+				kernel_initializer=create_initializer(initializer_range))
+			key_filter_lower = tf.layers.dense(
+				from_tensor_2d,
+				num_attention_heads * smoothness,
+				activation=key_act,
+				name="key_filter_lower",
+				kernel_initializer=create_initializer(initializer_range))
 
 	query_filter_upper = tf.nn.softmax(query_filter_upper)
 	query_filter_upper = tf.math.cumsum(query_filter_upper,axis=-1,reverse=True)

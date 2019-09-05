@@ -361,7 +361,7 @@ def input_fn_builder(input_files,
             tf.FixedLenFeature([max_predictions_per_seq], tf.float32),
         "next_sentence_labels":
             tf.FixedLenFeature([1], tf.int64),
-        "sentende_wise_mask":
+        "sentences_ending":
             tf.FixedLenFeature([max_seq_length], tf.int64),
     }
 

@@ -359,9 +359,9 @@ def get_assignment_map_from_checkpoint(tvars, init_checkpoint):
       initialized_variable_names[name] = 1
       initialized_variable_names[name + ":0"] = 1
     else:
-	  assignment_map[name] = name
-	  initialized_variable_names[name] = 1
-	  initialized_variable_names[name + ":0"] = 1
+      assignment_map[name] = name
+	    initialized_variable_names[name] = 1
+	    initialized_variable_names[name + ":0"] = 1
 
   return (assignment_map, initialized_variable_names)
 
@@ -943,50 +943,50 @@ def transformer_model(input_tensor,
   all_layer_outputs = []
   for layer_idx in range(num_hidden_layers):
     #with tf.variable_scope("layer_%d" % layer_idx):
-	layer_input = prev_output
-	layer_segment_attention_mask = None
-	if layer_idx < segment_attention_layer:
-	  layer_segment_attention_mask = segment_attention_mask
-	with tf.variable_scope("attention"):
-	  attention_heads = []
-	  with tf.variable_scope("self"):
-	    attention_head = attention_layer(
-	          from_tensor=layer_input,
-	          to_tensor=layer_input,
-	          layer_idx=layer_idx,
-	          segment_attention_layer=segment_attention_layer,
-	          attention_mask=attention_mask,
-	          segment_attention_mask=layer_segment_attention_mask,
-	          num_attention_heads=num_attention_heads,
-	          size_per_head=attention_head_size,
-            smoothness=smoothness,
-	          attention_probs_dropout_prob=attention_probs_dropout_prob,
-	          initializer_range=initializer_range,
-	          do_return_2d_tensor=True,
-	          batch_size=batch_size,
-	          from_seq_length=seq_length,
-	          to_seq_length=seq_length)
-	    attention_heads.append(attention_head)
+	  layer_input = prev_output
+	  layer_segment_attention_mask = None
+	  if layer_idx < segment_attention_layer:
+	    layer_segment_attention_mask = segment_attention_mask
+  	with tf.variable_scope("attention"):
+  	  attention_heads = []
+  	  with tf.variable_scope("self"):
+  	    attention_head = attention_layer(
+  	          from_tensor=layer_input,
+  	          to_tensor=layer_input,
+  	          layer_idx=layer_idx,
+  	          segment_attention_layer=segment_attention_layer,
+  	          attention_mask=attention_mask,
+  	          segment_attention_mask=layer_segment_attention_mask,
+  	          num_attention_heads=num_attention_heads,
+  	          size_per_head=attention_head_size,
+              smoothness=smoothness,
+  	          attention_probs_dropout_prob=attention_probs_dropout_prob,
+  	          initializer_range=initializer_range,
+  	          do_return_2d_tensor=True,
+  	          batch_size=batch_size,
+  	          from_seq_length=seq_length,
+  	          to_seq_length=seq_length)
+  	    attention_heads.append(attention_head)
 
-	  attention_output = None
-	  if len(attention_heads) == 1:
-	    attention_output = attention_heads[0]
-	  else:
-	      # In the case where we have other sequences, we just concatenate
-	      # them to the self-attention head before the projection.
-	    attention_output = tf.concat(attention_heads, axis=-1)
+	    attention_output = None
+  	  if len(attention_heads) == 1:
+  	    attention_output = attention_heads[0]
+  	  else:
+  	      # In the case where we have other sequences, we just concatenate
+  	      # them to the self-attention head before the projection.
+  	    attention_output = tf.concat(attention_heads, axis=-1)
 
-	    # Run a linear projection of `hidden_size` then add a residual
-	    # with `layer_input`.
-	  with tf.variable_scope("output/layer_%d" % layer_idx):
-	    attention_output = tf.layers.dense(
-	          attention_output,
-	          hidden_size,
-	          kernel_initializer=create_initializer(initializer_range))
-	    attention_output = dropout(attention_output, hidden_dropout_prob)
-	    attention_output = layer_norm(attention_output + layer_input)
+  	   # Run a linear projection of `hidden_size` then add a residual
+  	   # with `layer_input`.
+  	  with tf.variable_scope("output/layer_%d" % layer_idx):
+  	    attention_output = tf.layers.dense(
+  	          attention_output,
+  	          hidden_size,
+  	          kernel_initializer=create_initializer(initializer_range))
+  	    attention_output = dropout(attention_output, hidden_dropout_prob)
+  	    attention_output = layer_norm(attention_output + layer_input)
 
-      # The activation is only applied to the "intermediate" hidden layer.
+    # The activation is only applied to the "intermediate" hidden layer.
     with tf.variable_scope("layer_%d/intermediate" % layer_idx):
       intermediate_output = tf.layers.dense(
             attention_output,

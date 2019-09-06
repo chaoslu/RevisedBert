@@ -128,6 +128,8 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
     next_sentence_labels = features["next_sentence_labels"]
     sentences_ending = features["sentences_ending"]
 
+    print(sentences_ending)
+
     # build sentencewise masks
     seq_length = BlockBert.get_shape_list(input_ids)
     # tf.logging.info("length of sequence and batch size:%d,%d" % (seq_length[0],seq_length[1]))

@@ -757,13 +757,15 @@ def attention_layer(from_tensor,
 				num_attention_heads * smoothness,
 				activation=query_act,
 				name="query_filter_upper",
-				kernel_initializer=create_initializer(initializer_range))
+				kernel_initializer=create_initializer(initializer_range),
+				reuse=tf.AUTO_REUSE)
 		query_filter_lower = tf.layers.dense(
 				from_tensor_2d,
 				num_attention_heads * smoothness,
 				activation=query_act,
 				name="query_filter_lower",
-				kernel_initializer=create_initializer(initializer_range))
+				kernel_initializer=create_initializer(initializer_range),
+				reuse=tf.AUTO_REUSE)
 
 		# key filters
 		key_filter_upper = tf.layers.dense(
@@ -771,13 +773,15 @@ def attention_layer(from_tensor,
 				num_attention_heads * smoothness,
 				activation=key_act,
 				name="key_filter_upper",
-				kernel_initializer=create_initializer(initializer_range))
+				kernel_initializer=create_initializer(initializer_range),
+				reuse=tf.AUTO_REUSE)
 		key_filter_lower = tf.layers.dense(
 				from_tensor_2d,
 				num_attention_heads * smoothness,
 				activation=key_act,
 				name="key_filter_lower",
-				kernel_initializer=create_initializer(initializer_range))
+				kernel_initializer=create_initializer(initializer_range),
+				reuse=tf.AUTO_REUSE)
 	else:
 		with tf.variable_scope("layer_%d" % layer_idx):
 			query_filter_upper = tf.layers.dense(

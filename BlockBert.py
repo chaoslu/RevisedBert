@@ -212,7 +212,7 @@ class BlockBertModel(object):
 				self.all_encoder_layers = transformer_model(
 						input_tensor=self.embedding_output,
 						attention_mask=attention_mask,
-						segment_attention_mask=sent_wise_mask,
+						segment_attention_mask=sentences_attention_mask,
 						num_segment_attention_layers=config.num_segment_attention_layers,
 						hidden_size=config.hidden_size,
 						num_hidden_layers=config.num_hidden_layers,

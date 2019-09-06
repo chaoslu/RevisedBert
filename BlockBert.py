@@ -959,7 +959,7 @@ def transformer_model(input_tensor,
 				"heads (%d)" % (hidden_size, num_attention_heads))
 
 	attention_head_size = int(hidden_size / num_attention_heads)
-	if attention % smoothness != 0:
+	if attention_head_size % smoothness != 0:
 		raise ValueError(
 				"The attention head size (%d) is not a multiple of the smoothness "
 				"heads (%d)" % (attention_head_size, smoothness))

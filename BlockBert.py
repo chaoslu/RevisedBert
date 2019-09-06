@@ -349,9 +349,9 @@ def get_assignment_map_from_checkpoint(tvars, init_checkpoint):
 			if "layer_" in name and "self" in name:
 				scopes = re.split("/",name)
 				assert "layer" in scopes[2]
-				assert "self" in scopes[5]
+				assert "self" in scopes[4]
 				temp = scopes[2]
-				scopes[5] = temp
+				scopes[4] = temp
 				new_name = "/".join(scopes)
 			elif "layer_" in name and "output" in name:
 				scopes = re.split("/",name)

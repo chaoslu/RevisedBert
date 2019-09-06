@@ -36,6 +36,8 @@ class BertConfig(object):
 							 hidden_size=768,
 							 num_hidden_layers=12,
 							 num_attention_heads=12,
+							 num_segment_attention_layers=3,
+							 smoothness=2,
 							 intermediate_size=3072,
 							 hidden_act="gelu",
 							 hidden_dropout_prob=0.1,
@@ -71,6 +73,8 @@ class BertConfig(object):
 		self.hidden_size = hidden_size
 		self.num_hidden_layers = num_hidden_layers
 		self.num_attention_heads = num_attention_heads
+		self.num_segment_attention_layers = num_segment_attention_layers
+		self.smoothness = smoothness
 		self.hidden_act = hidden_act
 		self.intermediate_size = intermediate_size
 		self.hidden_dropout_prob = hidden_dropout_prob
@@ -209,6 +213,7 @@ class BlockBertModel(object):
 						input_tensor=self.embedding_output,
 						attention_mask=attention_mask,
 						segment_attention_mask=sent_wise_mask,
+						num_segment_attention_layers=config.num_segment_attention_layers,
 						hidden_size=config.hidden_size,
 						num_hidden_layers=config.num_hidden_layers,
 						num_attention_heads=config.num_attention_heads,
@@ -601,12 +606,12 @@ def create_sentences_attention_mask(sent_wise_mask):
 def attention_layer(from_tensor,
 										to_tensor,
 										layer_idx,
-										segment_attention_layer=4,
+										num_segment_attention_layers=3,
 										attention_mask=None,
 										segment_attention_mask=None,
 										num_attention_heads=1,
 										size_per_head=512,
-										smoothness=3,
+										smoothness=2,
 										query_act=None,
 										key_act=None,
 										value_act=None,
@@ -745,7 +750,7 @@ def attention_layer(from_tensor,
 			name="value",
 			kernel_initializer=create_initializer(initializer_range))
 
-	if layer_idx < segment_attention_layer:
+	if layer_idx <= num_segment_attention_layers:
 		# query filters
 		query_filter_upper = tf.layers.dense(
 				from_tensor_2d,
@@ -900,8 +905,8 @@ def attention_layer(from_tensor,
 def transformer_model(input_tensor,
 											attention_mask=None,
 											segment_attention_mask=None,
-											segment_attention_layer=4,
-											smoothness=3,
+											num_segment_attention_layers=3,
+											smoothness=2,
 											hidden_size=768,
 											num_hidden_layers=12,
 											num_attention_heads=12,
@@ -954,6 +959,12 @@ def transformer_model(input_tensor,
 				"heads (%d)" % (hidden_size, num_attention_heads))
 
 	attention_head_size = int(hidden_size / num_attention_heads)
+	if attention % smoothness != 0:
+		raise ValueError(
+				"The attention head size (%d) is not a multiple of the smoothness "
+				"heads (%d)" % (attention_head_size, smoothness))
+
+
 	input_shape = get_shape_list(input_tensor, expected_rank=3)
 	batch_size = input_shape[0]
 	seq_length = input_shape[1]
@@ -976,7 +987,7 @@ def transformer_model(input_tensor,
 		#with tf.variable_scope("layer_%d" % layer_idx):
 		layer_input = prev_output
 		layer_segment_attention_mask = None
-		if layer_idx < segment_attention_layer:
+		if layer_idx < num_segment_attention_layers:
 			layer_segment_attention_mask = segment_attention_mask
 		with tf.variable_scope("attention"):
 			attention_heads = []
@@ -985,7 +996,7 @@ def transformer_model(input_tensor,
 							from_tensor=layer_input,
 							to_tensor=layer_input,
 							layer_idx=layer_idx,
-							segment_attention_layer=segment_attention_layer,
+							num_segment_attention_layers=num_segment_attention_layers,
 							attention_mask=attention_mask,
 							segment_attention_mask=layer_segment_attention_mask,
 							num_attention_heads=num_attention_heads,

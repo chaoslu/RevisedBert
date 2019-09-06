@@ -135,7 +135,10 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
     # tf.logging.info("length of sequence and batch size:%d,%d" % (seq_length[0],seq_length[1]))
     sent_wise_mask = np.zeros((seq_length[0],seq_length[1],seq_length[1]),dtype=int)
     ending_values = tf.get_static_value(sentences_ending)
+    input_seq = tf.get_static_value(input_ids)
+
     print(ending_values)
+    print(input_seq)
     
     for batch in range(seq_length[0]):
       for i in range(seq_length[1]-1):

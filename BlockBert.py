@@ -346,19 +346,16 @@ def get_assignment_map_from_checkpoint(tvars, init_checkpoint):
 
 			# for the attention layers, the original linear layers for Q,K,V are intialized
 			# from the vanilla bert model. while the filters are not.
-			if "layer_" in name and "self" in name:
+
+			if "attention" in name:
 				scopes = re.split("/",name)
 				assert "layer" in scopes[2]
-				assert "self" in scopes[4]
 				temp = scopes[2]
+				scopes[2] = scopes[3]
+				scopes[3] = scopes[4]
 				scopes[4] = temp
-				new_name = "/".join(scopes)
-			elif "layer_" in name and "output" in name:
-				scopes = re.split("/",name)
-				assert "layer" in scopes[2]
-				assert "output" in scopes[4]
-				temp = scopes[2]
-				scopes[4] = temp
+				assert "attention" in scopes[2]
+				assert "layer_" in scopes[4]
 				new_name = "/".join(scopes)
 			else:
 				continue

@@ -110,8 +110,14 @@ def write_instance_to_example_files(instances, tokenizer, max_seq_length,
     input_mask = [1] * len(input_ids)
     segment_ids = list(instance.segment_ids)
     sentences_ending = list(instance.sentences_ending)
+    linear_mask = []
 
-    #tf.logging.info("length and element of sentence ending : %d,%d" %(len(sentences_ending),sentences_ending[-1]))
+    # sentences next to each other are masked by ones and zeros
+    mask = 1
+    while len(linear_mask) < len(input_ids):
+      linear_mask.append(mask)
+      if len(linear_mask) in sentences_ending:
+        mask = 1 - mask
     
       
 
@@ -121,16 +127,16 @@ def write_instance_to_example_files(instances, tokenizer, max_seq_length,
       input_ids.append(0)
       input_mask.append(0)
       segment_ids.append(0)
+      linear_mask.append(0)
 
-    while len(sentences_ending) < max_seq_length:
-      sentences_ending.append(0)
+    
     #tf.logging.info("length of sentence ending after padding: %d" %len(sentences_ending))
 
 
     assert len(input_ids) == max_seq_length
     assert len(input_mask) == max_seq_length
     assert len(segment_ids) == max_seq_length
-    assert len(sentences_ending) == max_seq_length
+    assert len(linear_mask) == max_seq_length
 
     masked_lm_positions = list(instance.masked_lm_positions)
     masked_lm_ids = tokenizer.convert_tokens_to_ids(instance.masked_lm_labels)
@@ -151,7 +157,7 @@ def write_instance_to_example_files(instances, tokenizer, max_seq_length,
     features["masked_lm_ids"] = create_int_feature(masked_lm_ids)
     features["masked_lm_weights"] = create_float_feature(masked_lm_weights)
     features["next_sentence_labels"] = create_int_feature([next_sentence_label])
-    features["sentences_ending"] = create_int_feature(sentences_ending)
+    features["sentences_ending"] = create_int_feature(linear_mask)
 
     tf_example = tf.train.Example(features=tf.train.Features(feature=features))
 

@@ -201,6 +201,8 @@ class BlockBertModel(object):
 				attention_mask = create_attention_mask_from_input_mask(
 						input_ids, input_mask)
 
+				sentences_attention_mask = create_sentences_attention_mask(
+						sent_wise_mask)
 				# Run the stacked transformer.
 				# `sequence_output` shape = [batch_size, seq_length, hidden_size].
 				self.all_encoder_layers = transformer_model(
@@ -578,6 +580,22 @@ def create_attention_mask_from_input_mask(from_tensor, to_mask):
 	mask = broadcast_ones * to_mask
 
 	return mask
+
+def create_sentences_attention_mask(sent_wise_mask):
+	
+	#creating sentencewise masks which allow only intra-sentence attention
+	
+	shape = get_shape_list(sent_wise_mask)
+	batch_size = shape[0]
+	seq_length = shape[1]
+
+	from_mask = tf.reshape(sent_wise_mask,[batch_size,seq_length,1])
+	to_mask = tf.reshape(sent_wise_mask,[batch_size,1,seq_length])
+	mask = tf.cast(tf.math.logical_xor(tf.cast(from_mask,tf.bool),tf.cast(to_mask,tf.bool)),tf.int64)
+	mask = 1 - mask
+
+	return mask
+
 
 
 def attention_layer(from_tensor,

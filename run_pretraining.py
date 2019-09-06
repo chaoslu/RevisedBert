@@ -126,28 +126,7 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
     masked_lm_ids = features["masked_lm_ids"]
     masked_lm_weights = features["masked_lm_weights"]
     next_sentence_labels = features["next_sentence_labels"]
-    sentences_ending = features["sentences_ending"]
-
-    print(sentences_ending)
-
-    # build sentencewise masks
-    seq_length = BlockBert.get_shape_list(input_ids)
-    # tf.logging.info("length of sequence and batch size:%d,%d" % (seq_length[0],seq_length[1]))
-    sent_wise_mask = np.zeros((seq_length[0],seq_length[1],seq_length[1]),dtype=int)
-    ending_values = tf.get_static_value(sentences_ending)
-    input_seq = tf.reshape(input_ids,(seq_length[0],1,seq_length[1]))
-
-    print(ending_values)
-    print(input_seq)
-
-    for batch in range(seq_length[0]):
-      for i in range(seq_length[1]-1):
-        if ending_values[batch,i+1] != 0:
-          sent_wise_mask[batch,ending_values[i]:ending_values[i+1],ending_values[i]:ending_values[i+1]] = 1
-        else:
-          break
-    sent_wise_mask = tf.constant(sent_wise_mask)
-
+    sent_wise_mask = features["sentences_ending"]
 
     is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 

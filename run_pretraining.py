@@ -136,7 +136,7 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
     sent_wise_mask = np.zeros((seq_length[0],seq_length[1],seq_length[1]),dtype=int)
     ending_values = tf.get_static_value(sentences_ending)
     for batch in range(seq_length[0]):
-      for i in range(seq_length[1]):
+      for i in range(seq_length[1]-1):
         if ending_values[batch,i+1] != 0:
           sent_wise_mask[batch,ending_values[i]:ending_values[i+1],ending_values[i]:ending_values[i+1]] = 1
         else:

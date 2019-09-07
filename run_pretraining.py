@@ -23,7 +23,7 @@ import BlockBert
 import optimization
 import tensorflow as tf
 import numpy as np
-from python.io import debug as tf_dbg
+from tensorflow.python import debug as tf_debug
 
 flags = tf.flags
 

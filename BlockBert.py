@@ -357,11 +357,11 @@ def get_assignment_map_from_checkpoint(tvars, init_checkpoint):
 				assert "attention" in scopes[2]
 				assert "layer_" in scopes[4]
 				new_name = "/".join(scopes)
+				assignment_map[name] = new_name
+				initialized_variable_names[name] = 1
+				initialized_variable_names[name + ":0"] = 1
 			else:
 				continue
-			assignment_map[name] = new_name
-			initialized_variable_names[name] = 1
-			initialized_variable_names[name + ":0"] = 1
 		else:
 			assignment_map[name] = name
 			initialized_variable_names[name] = 1
@@ -812,20 +812,20 @@ def attention_layer(from_tensor,
 	query_filter_lower = tf.nn.softmax(query_filter_lower)
 	query_filter_lower = tf.math.cumsum(query_filter_lower,axis=-1,reverse=True)
 
-	query_filter = tf.math.log((1.0 - query_filter_upper) * query_filter_lower + (1.0 - query_filter_lower) * query_filter_upper)
+	query_filter = (1.0 - query_filter_upper) * query_filter_lower + (1.0 - query_filter_lower) * query_filter_upper
 	query_filter = tf.tile(tf.expand_dims(query_filter,axis=-1),[1,1,int(size_per_head/smoothness)])
 	query_filter = tf.reshape(tf.transpose(query_filter,[0,2,1]),[batch_size * from_seq_length,-1])
-	query_layer = query_filter + query_layer
+	query_layer = query_filter * query_layer
 	
 	key_filter_upper = tf.nn.softmax(key_filter_upper)
 	key_filter_upper = tf.math.cumsum(key_filter_upper,axis=-1,reverse=True)
 	key_filter_lower = tf.nn.softmax(key_filter_lower)
 	key_filter_lower = tf.math.cumsum(key_filter_lower,axis=-1,reverse=True)
 
-	key_filter = tf.math.log((1.0 - key_filter_upper) * key_filter_lower + (1.0 - key_filter_lower) * key_filter_upper)
+	key_filter = (1.0 - key_filter_upper) * key_filter_lower + (1.0 - key_filter_lower) * key_filter_upper
 	key_filter = tf.tile(tf.expand_dims(key_filter,axis=-1),[1,1,int(size_per_head/smoothness)])
 	key_filter = tf.reshape(tf.transpose(key_filter,[0,2,1]),[batch_size * from_seq_length,-1])
-	key_layer = key_filter + key_layer
+	key_layer = key_filter * key_layer
 
 	
 

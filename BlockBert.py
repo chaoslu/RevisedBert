@@ -593,8 +593,7 @@ def create_sentences_attention_mask(sent_wise_mask):
 
 	from_mask = tf.reshape(sent_wise_mask,[batch_size,seq_length,1])
 	to_mask = tf.reshape(sent_wise_mask,[batch_size,1,seq_length])
-	mask = tf.cast(tf.math.logical_xor(tf.cast(from_mask,tf.bool),tf.cast(to_mask,tf.bool)),tf.int64)
-	mask = 1 - mask
+	mask = tf.cast(tf.math.equal(tf.cast(from_mask,tf.bool),tf.cast(to_mask,tf.bool)),tf.int64)
 
 	return mask
 
@@ -747,7 +746,7 @@ def attention_layer(from_tensor,
 			name="value",
 			kernel_initializer=create_initializer(initializer_range))
 
-	if layer_idx <= num_segment_attention_layers:
+	if layer_idx < num_segment_attention_layers:
 		# query filters
 		query_filter_upper = tf.layers.dense(
 				from_tensor_2d,

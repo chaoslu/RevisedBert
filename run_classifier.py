@@ -456,6 +456,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length,
   assert len(input_mask) == max_seq_length
   assert len(segment_ids) == max_seq_length
 
+
   label_id = label_map[example.label]
   if ex_index < 5:
     tf.logging.info("*** Example ***")
@@ -574,11 +575,12 @@ def _truncate_seq_pair(tokens_a, tokens_b, max_length):
 def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
                  labels, num_labels, use_one_hot_embeddings):
   """Creates a classification model."""
-  model = modeling.BertModel(
+  model = BlockBert.BlockBertModel(
       config=bert_config,
       is_training=is_training,
       input_ids=input_ids,
       input_mask=input_mask,
+      sent_wise_mask=segment_ids,
       token_type_ids=segment_ids,
       use_one_hot_embeddings=use_one_hot_embeddings)
 

@@ -117,7 +117,7 @@ def write_instance_to_example_files(instances, tokenizer, max_seq_length,
     while len(linear_mask) < len(input_ids):
       linear_mask.append(mask)
       if len(linear_mask) in sentences_ending:
-        mask = 1 - mask
+        mask = mask + 1
     
       
 

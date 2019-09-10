@@ -348,7 +348,6 @@ def get_assignment_map_from_checkpoint(tvars, init_checkpoint):
 			# from the vanilla bert model. while the filters are not.
 
 			if "attention" in name:
-				tf.logging.info("unmatch scope names mapping %s" %name)
 				scopes = re.split("/",name)
 				assert "layer" in scopes[2]
 				temp = scopes[2]
@@ -361,14 +360,14 @@ def get_assignment_map_from_checkpoint(tvars, init_checkpoint):
 				assert new_name in name_to_variable
 
 				assignment_map[name] = new_name
-				initialized_variable_names[name] = 1
-				initialized_variable_names[name + ":0"] = 1
+				initialized_variable_names[new_name] = 1
+				initialized_variable_names[new_name + ":0"] = 1
 			else:
 				continue
 		else:
 			assignment_map[name] = name
-		initialized_variable_names[name] = 1
-		initialized_variable_names[name + ":0"] = 1
+			initialized_variable_names[name] = 1
+			initialized_variable_names[name + ":0"] = 1
 
 	return (assignment_map, initialized_variable_names)
 

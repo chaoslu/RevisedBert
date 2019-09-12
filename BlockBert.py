@@ -343,7 +343,7 @@ def get_assignment_map_from_checkpoint(tvars, init_checkpoint):
 		(name, var) = (x[0], x[1])
 		if name not in name_to_variable:
 			new_name = ""
-			tf.logging.info("%s\n" %name)
+			#tf.logging.info("%s\n" %name)
 
 			# for the attention layers, the original linear layers for Q,K,V are intialized
 			# from the vanilla bert model. while the filters are not.

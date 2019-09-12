@@ -157,7 +157,7 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
     scaffold_fn = None
     if init_checkpoint:
       (assignment_map, initialized_variable_names
-      ) = BlockBert.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
+      ) = BlockBert.get_assignment_map_from_checkpoint(tvars, init_checkpoint,model.config.first_pretraining)
       if use_tpu:
 
         def tpu_scaffold():

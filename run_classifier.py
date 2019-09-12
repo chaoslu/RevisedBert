@@ -647,7 +647,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
         num_labels, use_one_hot_embeddings)
 
     tvars = tf.trainable_variables()
-
+    initialized_variable_names = {}
+    
     # list all the variables for the current model
     for var in tvars:
       init_string = ""
@@ -664,7 +665,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
       tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape,
                       init_string)
 
-    initialized_variable_names = {}
+    
     scaffold_fn = None
     if init_checkpoint:
       (assignment_map, initialized_variable_names

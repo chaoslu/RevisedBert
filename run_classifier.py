@@ -993,7 +993,7 @@ def main(_):
   tf.gfile.MakeDirs(FLAGS.output_dir)
 
   task_name = FLAGS.task_name.lower()
-  print(task_name)
+  tf.logging.info("TASK_NAME: %s" % (task_name))
   if task_name not in processors:
     raise ValueError("Task not found: %s" % (task_name))
 

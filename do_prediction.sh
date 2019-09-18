@@ -3,7 +3,6 @@
 GLUE_DIR="glue_data"
 STORAGE_BUCKET="gs://my-bert-bucket"
 MY_CONFIG_DIR="gs://my-bert-bucket/uncased_L-12_H-768_A-12"
-
 TASK_NAME=("WNLI" "RTE" "MRPC" "CoLA" "SST" "QNLI" "MNLI")
 TASK_TRAIN_STEP=("59" "233" "343" "801" "6313" "9819" "36815")
 

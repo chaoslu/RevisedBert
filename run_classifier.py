@@ -362,12 +362,16 @@ class QqpProcessor(DataProcessor):
       if i == 0:
         continue
       guid = "%s-%s" % (set_type, i)
-      print(line)
+      
       if set_type == "test":
+        if len(line) != 3:
+          continue
         text_a = tokenization.convert_to_unicode(line[1])
         text_b = tokenization.convert_to_unicode(line[2])
         label = "0"
       else:
+        if len(line) != 6:
+          continue
         text_a = tokenization.convert_to_unicode(line[3])
         text_b = tokenization.convert_to_unicode(line[4])
         label = tokenization.convert_to_unicode(line[5])

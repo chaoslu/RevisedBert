@@ -627,7 +627,6 @@ def convert_examples_to_features(examples, max_seq_length,
 def main(_):
   tf.logging.set_verbosity(tf.logging.INFO)
 
-  processors = StsProcessor()
   tokenization.validate_case_matches_checkpoint(FLAGS.do_lower_case,
                                                 FLAGS.init_checkpoint)
 
@@ -668,6 +667,8 @@ def main(_):
   train_examples = None
   num_train_steps = None
   num_warmup_steps = None
+  
+  processor = StsProcessor()
   if FLAGS.do_train:
     train_examples = processor.get_train_examples(FLAGS.data_dir)
     num_train_steps = int(

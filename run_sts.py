@@ -454,8 +454,7 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
 
     scores = tf.matmul(output_layer, output_weights, transpose_b=True)
     scores = tf.nn.bias_add(scores, output_bias)
-    if(len(scores.shape.as_list()) > 1):
-      scores = tf.squeeze(scores)
+    scores = tf.squeeze(scores,axis=-1)
     
     per_example_loss = tf.losses.mean_squared_error(gold_scores,scores,reduction='none')
     loss = tf.reduce_mean(per_example_loss)

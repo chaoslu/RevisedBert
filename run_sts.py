@@ -453,7 +453,7 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
       output_layer = tf.nn.dropout(output_layer, keep_prob=0.9)
 
     scores = tf.matmul(output_layer, output_weights, transpose_b=True)
-    scores = tf.nn.bias_add(logits, output_bias)
+    scores = tf.nn.bias_add(scores, output_bias)
     
     per_example_loss = tf.losses.mean_squared_error(gold_scores,scores,reduction=None)
     loss = tf.reduce_mean(per_example_loss)
@@ -485,7 +485,7 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
 
     is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
-    (total_loss, per_example_loss, logits, probabilities) = create_model(
+    (total_loss, per_example_loss, probabilities) = create_model(
         bert_config, is_training, input_ids, input_mask, segment_ids, gold_scores,
         use_one_hot_embeddings)
 

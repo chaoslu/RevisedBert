@@ -175,6 +175,16 @@ class InputFeatures(object):
 class StsProcessor(object):
   """Processor for the MultiNLI data set (GLUE version)."""
 
+  @classmethod
+  def _read_tsv(cls, input_file, quotechar=None):
+    """Reads a tab separated value file."""
+    with tf.gfile.Open(input_file, "r") as f:
+      reader = csv.reader(f, delimiter="\t", quotechar=quotechar)
+      lines = []
+      for line in reader:
+        lines.append(line)
+      return lines
+
   def get_train_examples(self, data_dir):
     """See base class."""
     return self._create_examples(
@@ -667,7 +677,7 @@ def main(_):
   train_examples = None
   num_train_steps = None
   num_warmup_steps = None
-  
+
   processor = StsProcessor()
   if FLAGS.do_train:
     train_examples = processor.get_train_examples(FLAGS.data_dir)

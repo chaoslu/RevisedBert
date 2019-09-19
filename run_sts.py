@@ -801,13 +801,13 @@ def main(_):
     with tf.gfile.GFile(output_predict_file, "w") as writer:
       num_written_lines = 0
       tf.logging.info("***** Predict results *****")
-      first_line = "\t".join(["index","prediction"])
+      first_line = "\t".join(["index","prediction"]) + "\n"
       writer.write(first_line)
       for (i, prediction) in enumerate(result):
         similarity_score = prediction["similarity scores"]
         if i >= num_actual_predict_examples:
           break
-        output_line = "\t".join(str(i),str(similarity_score)) + "\n"
+        output_line = "\t".join([str(i),str(similarity_score)]) + "\n"
         writer.write(output_line)
         num_written_lines += 1
     assert num_written_lines == num_actual_predict_examples

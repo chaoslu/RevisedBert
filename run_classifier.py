@@ -817,11 +817,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
     tvars = tf.trainable_variables()
     initialized_variable_names = {}
 
-    # list all the variables for the current model
-    for var in tvars:
-      init_string = ", *CURRENT MODEL*"
-      tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape,
-                      init_string)
+
     # list all the variables for the imported model
     init_vars = tf.train.list_variables(init_checkpoint)
     for var in init_vars:
@@ -968,6 +964,7 @@ def main(_):
   tf.logging.set_verbosity(tf.logging.INFO)
 
   processors = {
+      "diagnostic": MnliProcessor,
       "cola": ColaProcessor,
       "sst" : SstProcessor,
       "mnli": MnliProcessor,

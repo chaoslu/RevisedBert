@@ -125,7 +125,7 @@ flags.DEFINE_integer(
 class InputExample(object):
   """A single training/test example for simple sequence classification."""
 
-  def __init__(self, guid, text_a, text_b, score):
+  def __init__(self, guid, text_a, text_b, gold_score):
     """Constructs a InputExample.
 
     Args:
@@ -140,7 +140,7 @@ class InputExample(object):
     self.guid = guid
     self.text_a = text_a
     self.text_b = text_b
-    self.gold_score = score
+    self.gold_score = gold_score
 
 
 class PaddingInputExample(object):

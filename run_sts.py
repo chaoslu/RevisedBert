@@ -482,7 +482,7 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
     if "is_real_example" in features:
       is_real_example = tf.cast(features["is_real_example"], dtype=tf.float32)
     else:
-      is_real_example = tf.ones(tf.shape(label_ids), dtype=tf.float32)
+      is_real_example = tf.ones(tf.shape(gold_scores), dtype=tf.float32)
 
     is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
@@ -801,13 +801,13 @@ def main(_):
     with tf.gfile.GFile(output_predict_file, "w") as writer:
       num_written_lines = 0
       tf.logging.info("***** Predict results *****")
+      first_line = "\t".join("index","prediction")
+      writer.write(first_line)
       for (i, prediction) in enumerate(result):
-        probabilities = prediction["probabilities"]
+        similarity_score = prediction["similarity scores"]
         if i >= num_actual_predict_examples:
           break
-        output_line = "\t".join(
-            str(class_probability)
-            for class_probability in probabilities) + "\n"
+        output_line = "\t".join(str(i),str(similarity_score)) + "\n"
         writer.write(output_line)
         num_written_lines += 1
     assert num_written_lines == num_actual_predict_examples

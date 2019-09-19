@@ -308,7 +308,7 @@ def convert_single_example(ex_index, example, max_seq_length,
     tf.logging.info("input_ids: %s" % " ".join([str(x) for x in input_ids]))
     tf.logging.info("input_mask: %s" % " ".join([str(x) for x in input_mask]))
     tf.logging.info("segment_ids: %s" % " ".join([str(x) for x in segment_ids]))
-    tf.logging.info("label: %s (id = %d)" % (example.label, label_id))
+    tf.logging.info("score: %s (id = %d)" % (example.gold_score, label_id))
 
   feature = InputFeatures(
       input_ids=input_ids,

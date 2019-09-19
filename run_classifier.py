@@ -1184,7 +1184,7 @@ def main(_):
         if i >= num_actual_predict_examples:
           break
         logit = np.argmax(probabilities)
-        output_line = "\t".join([str(i),label_list[logits]]) + "\n"
+        output_line = "\t".join([str(i),label_list[logit]]) + "\n"
         writer.write(output_line)
         num_written_lines += 1
     assert num_written_lines == num_actual_predict_examples

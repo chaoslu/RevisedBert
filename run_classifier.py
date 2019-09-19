@@ -25,6 +25,7 @@ import BlockBert
 import optimization
 import tokenization
 import tensorflow as tf
+import numpy as np
 
 flags = tf.flags
 
@@ -1176,13 +1177,14 @@ def main(_):
     with tf.gfile.GFile(output_predict_file, "w") as writer:
       num_written_lines = 0
       tf.logging.info("***** Predict results *****")
+      first_line = "\t".join(["index","prediction"]) + "\n"
+      writer.write(first_line)
       for (i, prediction) in enumerate(result):
         probabilities = prediction["probabilities"]
         if i >= num_actual_predict_examples:
           break
-        output_line = "\t".join(
-            str(class_probability)
-            for class_probability in probabilities) + "\n"
+        logit = np.argmax(probabilities)
+        output_line = "\t".join([str(i),label_list[logits]]) + "\n"
         writer.write(output_line)
         num_written_lines += 1
     assert num_written_lines == num_actual_predict_examples

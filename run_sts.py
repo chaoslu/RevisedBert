@@ -801,7 +801,7 @@ def main(_):
     with tf.gfile.GFile(output_predict_file, "w") as writer:
       num_written_lines = 0
       tf.logging.info("***** Predict results *****")
-      first_line = "\t".join("index","prediction")
+      first_line = "\t".join(["index","prediction"])
       writer.write(first_line)
       for (i, prediction) in enumerate(result):
         similarity_score = prediction["similarity scores"]

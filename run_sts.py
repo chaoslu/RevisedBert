@@ -486,7 +486,7 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
 
     is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
-    (total_loss, per_example_loss, probabilities) = create_model(
+    (total_loss, per_example_loss, scores) = create_model(
         bert_config, is_training, input_ids, input_mask, segment_ids, gold_scores,
         use_one_hot_embeddings)
 

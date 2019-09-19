@@ -338,14 +338,14 @@ def file_based_convert_examples_to_features(
 
 
     def create_float_feature(values):
-      f = tf.train.Feature(float_list=tf.train.FloatList(value=[value]))
+      f = tf.train.Feature(float_list=tf.train.FloatList(value=[values]))
       return f
 
     features = collections.OrderedDict()
     features["input_ids"] = create_int_feature(feature.input_ids)
     features["input_mask"] = create_int_feature(feature.input_mask)
     features["segment_ids"] = create_int_feature(feature.segment_ids)
-    features["gold_score"] = create_float_feature([feature.gold_score])
+    features["gold_score"] = create_float_feature(feature.gold_score)
     features["is_real_example"] = create_int_feature(
         [int(feature.is_real_example)])
 

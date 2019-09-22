@@ -1239,7 +1239,7 @@ def main(_):
 				if i >= num_actual_predict_examples:
 					break
 				tf.logging.info("enter into the query \n")
-				key_filter = prediction["key_filter"]
+				key_filter = prediction["key"]
 				#(from_length,hsize) = query_filter.size()
 				writer.write("sentence %d:\n\n" % i)
 				for word in key_filter:

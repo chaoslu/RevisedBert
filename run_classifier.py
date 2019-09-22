@@ -1179,6 +1179,9 @@ def main(_):
 		result = estimator.predict(input_fn=predict_input_fn)
 
 		output_predict_file = os.path.join(FLAGS.output_dir, "test_results.tsv")
+		output_query_file = os.path.join(FLAGS.output_dir, "query.tsv")
+		output_key_file = os.path.join(FLAGS.output_dir, "key.tsv")
+
 		with tf.gfile.GFile(output_predict_file, "w") as writer:
 			num_written_lines = 0
 			tf.logging.info("***** Predict results *****")
@@ -1195,7 +1198,7 @@ def main(_):
 		assert num_written_lines == num_actual_predict_examples
 
 
-		with tf.gfile.GFile("query" + output_predict_file, "w") as writer:
+		with tf.gfile.GFile(output_query_file, "w") as writer:
 			for (i, prediction) in enumerate(result):
 				if i >= num_actual_predict_examples:
 					break
@@ -1208,7 +1211,7 @@ def main(_):
 				writer.write("\n\n")
 
 
-		with tf.gfile.GFile("key" + output_predict_file, "w") as writer:
+		with tf.gfile.GFile(output_key_file, "w") as writer:
 			for (i, prediction) in enumerate(result):
 				if i >= num_actual_predict_examples:
 					break

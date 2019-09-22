@@ -213,7 +213,7 @@ class BlockBertModel(object):
 						sent_wise_mask)
 				# Run the stacked transformer.
 				# `sequence_output` shape = [batch_size, seq_length, hidden_size].
-				self.all_encoder_layers = transformer_model(
+				(self.all_encoder_layers, self.query_filter, self.key_filter) = transformer_model(
 						input_tensor=self.embedding_output,
 						attention_mask=attention_mask,
 						segment_attention_mask=sentences_attention_mask,
@@ -272,6 +272,12 @@ class BlockBertModel(object):
 
 	def get_embedding_table(self):
 		return self.embedding_table
+
+	def get_query_filter(self):
+		return self.query_filter
+
+	def get_key_filter(self):
+		return self.key_filter
 
 
 def gelu(x):
@@ -603,7 +609,7 @@ def create_sentences_attention_mask(sent_wise_mask):
 
 	from_mask = tf.reshape(sent_wise_mask,[batch_size,seq_length,1])
 	to_mask = tf.reshape(sent_wise_mask,[batch_size,1,seq_length])
-	mask = tf.cast(tf.math.equal(tf.cast(from_mask,tf.bool),tf.cast(to_mask,tf.bool)),tf.int64)
+	mask = tf.cast(tf.math.equal(from_mask,to_mask),tf.int64)
 
 	return mask
 
@@ -839,20 +845,20 @@ def attention_layer(from_tensor,
 	
 
 	# `query_layer` = [B, N, F, H]
-	query_layer = transpose_for_scores(query_layer, batch_size,
-																		 num_attention_heads, from_seq_length,
-																		 size_per_head)
-
+	query_layer = transpose_for_scores(query_layer, batch_size, num_attention_heads, 
+									   from_seq_length, size_per_head)
 	# `key_layer` = [B, N, T, H]
 	key_layer = transpose_for_scores(key_layer, batch_size, num_attention_heads,
-																	 to_seq_length, size_per_head)
+									 to_seq_length, size_per_head)
+
 
 	# Take the dot product between "query" and "key" to get the raw
 	# attention scores.
 	# `attention_scores` = [B, N, F, T]
 	attention_scores = tf.matmul(query_layer, key_layer, transpose_b=True)
 	attention_scores = tf.multiply(attention_scores,
-																 1.0 / math.sqrt(float(size_per_head)))
+									1.0 / math.sqrt(float(size_per_head)))
+
 
 	if attention_mask is not None:
 		# `attention_mask` = [B, 1, F, T]
@@ -898,6 +904,7 @@ def attention_layer(from_tensor,
 	# `context_layer` = [B, F, N, H]
 	context_layer = tf.transpose(context_layer, [0, 2, 1, 3])
 
+
 	if do_return_2d_tensor:
 		# `context_layer` = [B*F, N*H]
 		context_layer = tf.reshape(
@@ -909,7 +916,7 @@ def attention_layer(from_tensor,
 				context_layer,
 				[batch_size, from_seq_length, num_attention_heads * size_per_head])
 
-	return context_layer
+	return (context_layer,query_filter,key_filter)
 
 
 def transformer_model(input_tensor,
@@ -993,6 +1000,8 @@ def transformer_model(input_tensor,
 	prev_output = reshape_to_matrix(input_tensor)
 
 	all_layer_outputs = []
+	all_layer_queries = []
+	all_layer_keys = []
 	for layer_idx in range(num_hidden_layers):
 		#with tf.variable_scope("layer_%d" % layer_idx):
 		layer_input = prev_output
@@ -1002,7 +1011,7 @@ def transformer_model(input_tensor,
 		with tf.variable_scope("attention"):
 			attention_heads = []
 			with tf.variable_scope("self"):
-				attention_head = attention_layer(
+				(attention_head, query_filter, key_filter) = attention_layer(
 							from_tensor=layer_input,
 							to_tensor=layer_input,
 							layer_idx=layer_idx,
@@ -1057,15 +1066,29 @@ def transformer_model(input_tensor,
 			prev_output = layer_output
 			all_layer_outputs.append(layer_output)
 
+		all_layer_queries.append(query_filter)
+		all_layer_keys.append(key_filter)
+
+		query_outputs = []
+		for layer_query in all_layer_queries:
+			query_output = reshape_from_matrix(layer_query, input_shape)
+			query_outputs.append(query_output)
+
+		key_outputs = []
+		for layer_key in all_layer_keys:
+			key_output = reshape_from_matrix(layer_key, input_shape)
+			key_outputs.append(key_output)
+
+
 	if do_return_all_layers:
 		final_outputs = []
 		for layer_output in all_layer_outputs:
 			final_output = reshape_from_matrix(layer_output, input_shape)
 			final_outputs.append(final_output)
-		return final_outputs
+		return (final_outputs,query_outputs,key_outputs)
 	else:
 		final_output = reshape_from_matrix(prev_output, input_shape)
-		return final_output
+		return (final_output,query_outputs,key_outputs)
 
 
 def get_shape_list(tensor, expected_rank=None, name=None):

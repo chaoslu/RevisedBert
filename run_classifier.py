@@ -788,6 +788,11 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
   #
   # If you want to use the token-level output, use model.get_sequence_output()
   # instead.
+  query_filter = model.get_query_filter()
+  query_filter = query_filter[2]
+  key_filter = model.get_key_filter()
+  key_filter = key_filter[2]
+
   output_layer = model.get_pooled_output()
 
   hidden_size = output_layer.shape[-1].value
@@ -814,7 +819,7 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
     per_example_loss = -tf.reduce_sum(one_hot_labels * log_probs, axis=-1)
     loss = tf.reduce_mean(per_example_loss)
 
-    return (loss, per_example_loss, logits, probabilities)
+    return (loss, per_example_loss, logits, probabilities, query_filter, key_filter)
 
 
 def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
@@ -841,7 +846,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 
     is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
-    (total_loss, per_example_loss, logits, probabilities) = create_model(
+    (total_loss, per_example_loss, logits, probabilities, query_filter, key_filter) = create_model(
         bert_config, is_training, input_ids, input_mask, segment_ids, label_ids,
         num_labels, use_one_hot_embeddings)
 
@@ -912,7 +917,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
     else:
       output_spec = tf.contrib.tpu.TPUEstimatorSpec(
           mode=mode,
-          predictions={"probabilities": probabilities},
+          predictions={"probabilities": probabilities, "query": query_filter, "key": key_filter},
           scaffold_fn=scaffold_fn)
     return output_spec
 
@@ -1044,7 +1049,7 @@ def main(_):
   is_per_host = tf.contrib.tpu.InputPipelineConfig.PER_HOST_V2
   run_config = tf.contrib.tpu.RunConfig(
       cluster=tpu_cluster_resolver,
-      master=tf.contrib.cluster_resolver.TPUClusterResolver(tpu=[os.environ['TPU_NAME']]).get_master(),
+      master=FLAGS.master,
       model_dir=FLAGS.output_dir,
       save_checkpoints_steps=FLAGS.save_checkpoints_steps,
       tpu_config=tf.contrib.tpu.TPUConfig(
@@ -1188,6 +1193,36 @@ def main(_):
         writer.write(output_line)
         num_written_lines += 1
     assert num_written_lines == num_actual_predict_examples
+
+
+    with tf.gfile.GFile("query" + output_predict_file, "w") as writer:
+      for (i, prediction) in enumerate(result):
+        if i >= num_actual_predict_examples:
+          break
+        query_filter = prediction["query_filter"]
+        (from_length,hsize) = query_filter.size()
+        writer.write("sentence %d:\n\n" % i)
+        for word in range(from_length):
+          vec_line = "\t".join([str(num) for num in query_filter[word,:]]) + "\n"
+          writer.write(vec_line)
+        writer.write("\n\n")
+
+
+     with tf.gfile.GFile("key" + output_predict_file, "w") as writer:
+      for (i, prediction) in enumerate(result):
+        if i >= num_actual_predict_examples:
+          break
+        query_filter = prediction["key_filter"]
+        (from_length,hsize) = query_filter.size()
+        writer.write("sentence %d:\n\n" % i)
+        for word in range(from_length):
+          vec_line = "\t".join([str(num) for num in query_filter[word,:]]) + "\n"
+          writer.write(vec_line)
+        writer.write("\n\n")
+
+
+    
+
 
 
 if __name__ == "__main__":

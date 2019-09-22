@@ -1217,7 +1217,8 @@ def main(_):
 				print(prediction["query_filter"])
 				if i >= num_actual_predict_examples:
 					break
-
+				tf.logging.info("enter into the query \n")
+				
 				query_filter = prediction["query_filter"]
 				(from_length,hsize) = query_filter.size()
 

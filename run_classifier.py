@@ -1182,6 +1182,9 @@ def main(_):
 		output_query_file = os.path.join(FLAGS.output_dir, "query.tsv")
 		output_key_file = os.path.join(FLAGS.output_dir, "key.tsv")
 
+		for the_key in result[0]
+			tf.logging.info("keys in the output: \n")
+			tf.logging.info(the_key + "\n")
 
 		'''
 		with tf.gfile.GFile(output_predict_file, "w") as writer:

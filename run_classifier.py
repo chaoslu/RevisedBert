@@ -1215,6 +1215,7 @@ def main(_):
 			for (i, prediction) in enumerate(result):
 				if i >= num_actual_predict_examples:
 					break
+				print(prediction["query_filter"])
 				query_filter = prediction["query_filter"]
 				(from_length,hsize) = query_filter.size()
 

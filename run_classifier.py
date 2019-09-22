@@ -1221,7 +1221,7 @@ def main(_):
 				tf.logging.info("enter into the query \n")
 
 				query_filter = prediction["query"]
-				(from_length,hsize) = query_filter.size()
+				from_length,hsize = query_filter.size()
 
 				tf.logging.info("the size of queries: %d,%d" %(from_length,hsize))
 				writer.write("sentence %d:\n\n" % i)

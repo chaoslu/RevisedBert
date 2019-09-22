@@ -917,7 +917,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 		else:
 			output_spec = tf.contrib.tpu.TPUEstimatorSpec(
 					mode=mode,
-					predictions={"probabilities": probabilities, "query": query_filter, "key": key_filter},
+					predictions={"query": query_filter},
 					scaffold_fn=scaffold_fn)
 		return output_spec
 
@@ -1182,6 +1182,8 @@ def main(_):
 		output_query_file = os.path.join(FLAGS.output_dir, "query.tsv")
 		output_key_file = os.path.join(FLAGS.output_dir, "key.tsv")
 
+
+		'''
 		with tf.gfile.GFile(output_predict_file, "w") as writer:
 			num_written_lines = 0
 			tf.logging.info("***** Predict results *****")
@@ -1203,9 +1205,9 @@ def main(_):
 					writer.write(vec_line)
 				writer.write("\n\n")
 		assert num_written_lines == num_actual_predict_examples
+		'''
 
-
-		with tf.gfile.GFile(output_query_file, "w") as writer1:
+		with tf.gfile.GFile(output_query_file, "w") as writer:
 			for (i, prediction) in enumerate(result):
 				if i >= num_actual_predict_examples:
 					break
@@ -1217,7 +1219,7 @@ def main(_):
 					writer1.write(vec_line)
 				writer1.write("\n\n")
 
-
+		'''
 		with tf.gfile.GFile(output_key_file, "w") as writer2:
 			for (i, prediction) in enumerate(result):
 				if i >= num_actual_predict_examples:
@@ -1229,7 +1231,7 @@ def main(_):
 					vec_line = "\t".join([str(num) for num in query_filter[word,:]]) + "\n"
 					writer2.write(vec_line)
 				writer2.write("\n\n")
-
+			'''
 
 		
 

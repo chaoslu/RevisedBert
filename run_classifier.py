@@ -1195,6 +1195,13 @@ def main(_):
 				output_line = "\t".join([str(i),label_list[logit]]) + "\n"
 				writer.write(output_line)
 				num_written_lines += 1
+				query_filter = prediction["query_filter"]
+				(from_length,hsize) = query_filter.size()
+				writer.write("sentence %d:\n\n" % i)
+				for word in range(from_length):
+					vec_line = "\t".join([str(num) for num in query_filter[word,:]]) + "\n"
+					writer.write(vec_line)
+				writer.write("\n\n")
 		assert num_written_lines == num_actual_predict_examples
 
 

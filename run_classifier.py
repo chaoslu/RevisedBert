@@ -1226,7 +1226,7 @@ def main(_):
 				#tf.logging.info("the size of queries: %d,%d" %(from_length,hsize))
 				writer.write("sentence %d:\n\n" % i)
 				for word in query_filter:
-					vec_line = "\t".join([str(num) for num in word]) + "\n"
+					vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 					writer.write(vec_line)
 				writer.write("\n\n")
 

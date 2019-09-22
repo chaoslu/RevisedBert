@@ -917,7 +917,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 		else:
 			output_spec = tf.contrib.tpu.TPUEstimatorSpec(
 					mode=mode,
-					predictions={"query": query_filter},
+					predictions={"key": key_filter},
 					scaffold_fn=scaffold_fn)
 		return output_spec
 
@@ -1212,6 +1212,7 @@ def main(_):
 		assert num_written_lines == num_actual_predict_examples
 		'''
 
+		'''
 		with tf.gfile.GFile(output_predict_file, "w") as writer:
 			tf.logging.info("enter into the writer \n")
 			for (i, prediction) in enumerate(result):
@@ -1229,20 +1230,23 @@ def main(_):
 					vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 					writer.write(vec_line)
 				writer.write("\n\n")
-
 		'''
-		with tf.gfile.GFile(output_key_file, "w") as writer2:
+
+		
+		with tf.gfile.GFile(output_key_file, "w") as writer:
+			tf.logging.info("enter into the writer \n")
 			for (i, prediction) in enumerate(result):
 				if i >= num_actual_predict_examples:
 					break
-				query_filter = prediction["key_filter"]
-				(from_length,hsize) = query_filter.size()
-				writer2.write("sentence %d:\n\n" % i)
-				for word in range(from_length):
-					vec_line = "\t".join([str(num) for num in query_filter[word,:]]) + "\n"
-					writer2.write(vec_line)
-				writer2.write("\n\n")
-			'''
+				tf.logging.info("enter into the query \n")
+				key_filter = prediction["key_filter"]
+				#(from_length,hsize) = query_filter.size()
+				writer.write("sentence %d:\n\n" % i)
+				for word in key_filter:
+					vec_line = "\t".join([str(num) for num in word]) + "\n\n"
+					writer.write(vec_line)
+				writer.write("\n\n")
+		
 
 		
 

@@ -1215,12 +1215,12 @@ def main(_):
 		with tf.gfile.GFile(output_predict_file, "w") as writer:
 			tf.logging.info("enter into the writer \n")
 			for (i, prediction) in enumerate(result):
-				print(prediction["query_filter"])
+				print(prediction["query"])
 				if i >= num_actual_predict_examples:
 					break
 				tf.logging.info("enter into the query \n")
 
-				query_filter = prediction["query_filter"]
+				query_filter = prediction["query"]
 				(from_length,hsize) = query_filter.size()
 
 				tf.logging.info("the size of queries: %d,%d" %(from_length,hsize))

@@ -1208,7 +1208,7 @@ def main(_):
 				writer.write("\n\n")
 
 
-		 with tf.gfile.GFile("key" + output_predict_file, "w") as writer:
+		with tf.gfile.GFile("key" + output_predict_file, "w") as writer:
 			for (i, prediction) in enumerate(result):
 				if i >= num_actual_predict_examples:
 					break

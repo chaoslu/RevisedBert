@@ -1217,11 +1217,13 @@ def main(_):
 					break
 				query_filter = prediction["query_filter"]
 				(from_length,hsize) = query_filter.size()
-				writer1.write("sentence %d:\n\n" % i)
+
+				tf.logging.info("the size of queries: %d,%d" %(from_length,hsize))
+				writer.write("sentence %d:\n\n" % i)
 				for word in range(from_length):
 					vec_line = "\t".join([str(num) for num in query_filter[word,:]]) + "\n"
-					writer1.write(vec_line)
-				writer1.write("\n\n")
+					writer.write(vec_line)
+				writer.write("\n\n")
 
 		'''
 		with tf.gfile.GFile(output_key_file, "w") as writer2:

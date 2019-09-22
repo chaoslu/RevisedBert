@@ -1198,30 +1198,30 @@ def main(_):
 		assert num_written_lines == num_actual_predict_examples
 
 
-		with tf.gfile.GFile(output_query_file, "w") as writer:
+		with tf.gfile.GFile(output_query_file, "w") as writer1:
 			for (i, prediction) in enumerate(result):
 				if i >= num_actual_predict_examples:
 					break
 				query_filter = prediction["query_filter"]
 				(from_length,hsize) = query_filter.size()
-				writer.write("sentence %d:\n\n" % i)
+				writer1.write("sentence %d:\n\n" % i)
 				for word in range(from_length):
 					vec_line = "\t".join([str(num) for num in query_filter[word,:]]) + "\n"
-					writer.write(vec_line)
-				writer.write("\n\n")
+					writer1.write(vec_line)
+				writer1.write("\n\n")
 
 
-		with tf.gfile.GFile(output_key_file, "w") as writer:
+		with tf.gfile.GFile(output_key_file, "w") as writer2:
 			for (i, prediction) in enumerate(result):
 				if i >= num_actual_predict_examples:
 					break
 				query_filter = prediction["key_filter"]
 				(from_length,hsize) = query_filter.size()
-				writer.write("sentence %d:\n\n" % i)
+				writer2.write("sentence %d:\n\n" % i)
 				for word in range(from_length):
 					vec_line = "\t".join([str(num) for num in query_filter[word,:]]) + "\n"
-					writer.write(vec_line)
-				writer.write("\n\n")
+					writer2.write(vec_line)
+				writer2.write("\n\n")
 
 
 		

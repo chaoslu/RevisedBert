@@ -1211,11 +1211,13 @@ def main(_):
 		assert num_written_lines == num_actual_predict_examples
 		'''
 
-		with tf.gfile.GFile(output_query_file, "w") as writer:
+		with tf.gfile.GFile(output_predict_file, "w") as writer:
+			tf.logging.info("enter into the writer \n")
 			for (i, prediction) in enumerate(result):
+				print(prediction["query_filter"])
 				if i >= num_actual_predict_examples:
 					break
-				print(prediction["query_filter"])
+
 				query_filter = prediction["query_filter"]
 				(from_length,hsize) = query_filter.size()
 

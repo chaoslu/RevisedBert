@@ -789,9 +789,11 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
 	# If you want to use the token-level output, use model.get_sequence_output()
 	# instead.
 	query_filter = model.get_query_filter()
-	query_filter = query_filter[-1]
+	query_filter = query_filter[2]
 	key_filter = model.get_key_filter()
-	key_filter = key_filter[-1]
+	key_filter = key_filter[2]
+	attention_scores = model.get_attention_scores()
+	attention_scores = attention_scores[2]
 
 	output_layer = model.get_pooled_output()
 
@@ -819,7 +821,7 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
 		per_example_loss = -tf.reduce_sum(one_hot_labels * log_probs, axis=-1)
 		loss = tf.reduce_mean(per_example_loss)
 
-		return (loss, per_example_loss, logits, probabilities, query_filter, key_filter)
+		return (loss, per_example_loss, logits, probabilities, query_filter, key_filter, attention_scores)
 
 
 def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
@@ -846,7 +848,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 
 		is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
-		(total_loss, per_example_loss, logits, probabilities, query_filter, key_filter) = create_model(
+		(total_loss, per_example_loss, logits, probabilities, query_filter, key_filter, attention_scores) = create_model(
 				bert_config, is_training, input_ids, input_mask, segment_ids, label_ids,
 				num_labels, use_one_hot_embeddings)
 
@@ -917,7 +919,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 		else:
 			output_spec = tf.contrib.tpu.TPUEstimatorSpec(
 					mode=mode,
-					predictions={"key": key_filter},
+					predictions={"probabilities": probabilities,"key": key_filter,
+					"query": query_filter, "att_scores": attention_scores},
 					scaffold_fn=scaffold_fn)
 		return output_spec
 
@@ -1181,6 +1184,8 @@ def main(_):
 		output_predict_file = os.path.join(FLAGS.output_dir, "test_results.tsv")
 		output_query_file = os.path.join(FLAGS.output_dir, "query.tsv")
 		output_key_file = os.path.join(FLAGS.output_dir, "key.tsv")
+		output_attention_file = os.path.join(FLAGS.output_dir, "attention.tsv")
+
 
 		'''
 		for i,prediction in enumerate(result):
@@ -1188,7 +1193,7 @@ def main(_):
 				tf.logging.info("keys in the output: \n")
 				tf.logging.info(the_key + "\n")
 		'''
-		'''
+		
 		with tf.gfile.GFile(output_predict_file, "w") as writer:
 			num_written_lines = 0
 			tf.logging.info("***** Predict results *****")
@@ -1202,17 +1207,9 @@ def main(_):
 				output_line = "\t".join([str(i),label_list[logit]]) + "\n"
 				writer.write(output_line)
 				num_written_lines += 1
-				query_filter = prediction["query_filter"]
-				(from_length,hsize) = query_filter.size()
-				writer.write("sentence %d:\n\n" % i)
-				for word in range(from_length):
-					vec_line = "\t".join([str(num) for num in query_filter[word,:]]) + "\n"
-					writer.write(vec_line)
-				writer.write("\n\n")
 		assert num_written_lines == num_actual_predict_examples
-		'''
+		
 
-		'''
 		with tf.gfile.GFile(output_predict_file, "w") as writer:
 			tf.logging.info("enter into the writer \n")
 			for (i, prediction) in enumerate(result):
@@ -1230,7 +1227,6 @@ def main(_):
 					vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 					writer.write(vec_line)
 				writer.write("\n\n")
-		'''
 
 		
 		with tf.gfile.GFile(output_key_file, "w") as writer:
@@ -1248,6 +1244,19 @@ def main(_):
 				writer.write("\n\n")
 		
 
+		with tf.gfile.GFile(output_attention_file, "w") as writer:
+			tf.logging.info("enter into the writer \n")
+			for (i, prediction) in enumerate(result):
+				if i >= num_actual_predict_examples:
+					break
+				tf.logging.info("enter into the query \n")
+				attention_scores = prediction["key"]
+				#(from_length,hsize) = query_filter.size()
+				writer.write("sentence %d:\n\n" % i)
+				for word in attention_scores:
+					vec_line = "\t".join([str(num) for num in word]) + "\n\n"
+					writer.write(vec_line)
+				writer.write("\n\n")
 		
 
 

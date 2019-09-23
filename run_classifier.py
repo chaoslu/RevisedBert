@@ -1250,12 +1250,13 @@ def main(_):
 				if i >= num_actual_predict_examples:
 					break
 				tf.logging.info("enter into the query \n")
-				attention_scores = prediction["key"]
+				attention_scores = prediction["scores"]
 				#(from_length,hsize) = query_filter.size()
 				writer.write("sentence %d:\n\n" % i)
-				for word in attention_scores:
-					vec_line = "\t".join([str(num) for num in word]) + "\n\n"
-					writer.write(vec_line)
+				for head in attention_scores:
+					for word in head:
+						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
+						writer.write(vec_line)
 				writer.write("\n\n")
 		
 

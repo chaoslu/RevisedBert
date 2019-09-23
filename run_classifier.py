@@ -1193,6 +1193,7 @@ def main(_):
 				tf.logging.info(the_key + "\n")
 		'''
 		
+		'''
 		with tf.gfile.GFile(output_predict_file, "w") as writer:
 			num_written_lines = 0
 			tf.logging.info("***** Predict results *****")
@@ -1242,7 +1243,7 @@ def main(_):
 					writer.write(vec_line)
 				writer.write("\n\n")
 		
-
+		'''
 		with tf.gfile.GFile(output_attention_file, "w") as writer:
 			tf.logging.info("enter into the writer \n")
 			for (i, prediction) in enumerate(result):

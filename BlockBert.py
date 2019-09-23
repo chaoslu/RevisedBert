@@ -1015,6 +1015,7 @@ def transformer_model(input_tensor,
 	all_layer_outputs = []
 	all_layer_queries = []
 	all_layer_keys = []
+	all_layer_attentions = []
 	for layer_idx in range(num_hidden_layers):
 		#with tf.variable_scope("layer_%d" % layer_idx):
 		layer_input = prev_output
@@ -1081,6 +1082,7 @@ def transformer_model(input_tensor,
 
 		all_layer_queries.append(query_filter)
 		all_layer_keys.append(key_filter)
+		all_layer_attentions.append(attention_scores)
 
 		query_outputs = []
 		for layer_query in all_layer_queries:
@@ -1092,6 +1094,11 @@ def transformer_model(input_tensor,
 			key_output = reshape_from_matrix(layer_key, input_shape)
 			key_outputs.append(key_output)
 
+		attention_outputs = []
+		for layer_attention in all_layer_attentions:
+			attention_output = reshape_from_matrix(layer_attention, input_shape)
+			attention_outputs.append(attention_output)
+
 
 	if do_return_all_layers:
 		final_outputs = []
@@ -1101,7 +1108,7 @@ def transformer_model(input_tensor,
 		return (final_outputs,query_outputs,key_outputs)
 	else:
 		final_output = reshape_from_matrix(prev_output, input_shape)
-		return (final_output,query_outputs,key_outputs,attention_scores)
+		return (final_output,query_outputs,key_outputs,attention_outputs)
 
 
 def get_shape_list(tensor, expected_rank=None, name=None):

@@ -1105,7 +1105,7 @@ def transformer_model(input_tensor,
 		for layer_output in all_layer_outputs:
 			final_output = reshape_from_matrix(layer_output, input_shape)
 			final_outputs.append(final_output)
-		return (final_outputs,query_outputs,key_outputs)
+		return (final_outputs,query_outputs,key_outputs,attention_outputs)
 	else:
 		final_output = reshape_from_matrix(prev_output, input_shape)
 		return (final_output,query_outputs,key_outputs,attention_outputs)

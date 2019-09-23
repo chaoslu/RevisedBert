@@ -919,8 +919,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 		else:
 			output_spec = tf.contrib.tpu.TPUEstimatorSpec(
 					mode=mode,
-					predictions={"probabilities": probabilities,"key": key_filter,
-					"query": query_filter, "att_scores": attention_scores},
+					predictions={"att_scores": attention_scores},
 					scaffold_fn=scaffold_fn)
 		return output_spec
 
@@ -1250,7 +1249,7 @@ def main(_):
 				if i >= num_actual_predict_examples:
 					break
 				tf.logging.info("enter into the query \n")
-				attention_scores = prediction["scores"]
+				attention_scores = prediction["att_scores"]
 				#(from_length,hsize) = query_filter.size()
 				writer.write("sentence %d:\n\n" % i)
 				for head in attention_scores:

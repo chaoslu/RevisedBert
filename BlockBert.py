@@ -987,11 +987,13 @@ def transformer_model(input_tensor,
 				"heads (%d)" % (hidden_size, num_attention_heads))
 
 	attention_head_size = int(hidden_size / num_attention_heads)
+
+	'''
 	if attention_head_size % smoothness != 0:
 		raise ValueError(
 				"The attention head size (%d) is not a multiple of the smoothness "
 				"heads (%d)" % (attention_head_size, smoothness))
-
+	'''
 
 	input_shape = get_shape_list(input_tensor, expected_rank=3)
 	batch_size = input_shape[0]
@@ -1031,7 +1033,7 @@ def transformer_model(input_tensor,
 							segment_attention_mask=layer_segment_attention_mask,
 							num_attention_heads=num_attention_heads,
 							size_per_head=attention_head_size,
-							smoothness=smoothness,
+							dependency_size=dependency_size,
 							attention_probs_dropout_prob=attention_probs_dropout_prob,
 							initializer_range=initializer_range,
 							do_return_2d_tensor=True,

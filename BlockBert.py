@@ -835,7 +835,7 @@ def attention_layer(from_tensor,
 	query_filter_original = (1.0 - query_filter_upper) * query_filter_lower + (1.0 - query_filter_lower) * query_filter_upper
 	query_filter = tf.tile(tf.expand_dims(query_filter_original,axis=-1),[1,1,int(size_per_head/2)])
 	query_filter = tf.reshape(query_filter,[batch_size * from_seq_length,-1])
-	query_layer = query_filter * query_layer
+	#query_layer = query_filter * query_layer
 	
 	key_filter_upper = tf.nn.softmax(key_filter_upper)
 	key_filter_upper = tf.math.cumsum(key_filter_upper,axis=-1,reverse=True)
@@ -845,7 +845,7 @@ def attention_layer(from_tensor,
 	key_filter_original = (1.0 - key_filter_upper) * key_filter_lower + (1.0 - key_filter_lower) * key_filter_upper
 	key_filter = tf.tile(tf.expand_dims(key_filter_original,axis=-1),[1,1,int(size_per_head/2)])
 	key_filter = tf.reshape(key_filter,[batch_size * from_seq_length,-1])
-	key_layer = key_filter * key_layer
+	#key_layer = key_filter * key_layer
 
 	
 
@@ -1096,8 +1096,7 @@ def transformer_model(input_tensor,
 
 		attention_outputs = []
 		for layer_attention in all_layer_attentions:
-			attention_output = reshape_from_matrix(layer_attention, input_shape)
-			attention_outputs.append(attention_output)
+			attention_outputs.append(layer_attention)
 
 
 	if do_return_all_layers:

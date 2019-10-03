@@ -213,7 +213,7 @@ class BlockBertModel(object):
 						sent_wise_mask)
 				# Run the stacked transformer.
 				# `sequence_output` shape = [batch_size, seq_length, hidden_size].
-				(self.all_encoder_layers, self.query_filter, self.key_filter,self.attention_scores) = transformer_model(
+				(self.all_encoder_layers, self.query_filter, self.key_filter,self.attention_scores,self.attention_filter) = transformer_model(
 						input_tensor=self.embedding_output,
 						attention_mask=attention_mask,
 						segment_attention_mask=sentences_attention_mask,
@@ -282,6 +282,9 @@ class BlockBertModel(object):
 
 	def get_attention_scores(self):
 		return self.attention_scores
+
+	def get_attention_filter(self):
+		return self.attention_filter
 
 def gelu(x):
 	"""Gaussian Error Linear Unit.
@@ -833,8 +836,8 @@ def attention_layer(from_tensor,
 	query_filter_lower = tf.math.cumsum(query_filter_lower,axis=-1,reverse=True)
 
 	query_filter_original = (1.0 - query_filter_upper) * query_filter_lower + (1.0 - query_filter_lower) * query_filter_upper
-	query_filter = tf.tile(tf.expand_dims(query_filter_original,axis=-1),[1,1,int(size_per_head/2)])
-	query_filter = tf.reshape(query_filter,[batch_size * from_seq_length,-1])
+	#query_filter = tf.tile(tf.expand_dims(query_filter_original,axis=-1),[1,1,int(size_per_head/2)])
+	#query_filter = tf.reshape(query_filter,[batch_size * from_seq_length,-1])
 	#query_layer = query_filter * query_layer
 	
 	key_filter_upper = tf.nn.softmax(key_filter_upper)
@@ -843,8 +846,8 @@ def attention_layer(from_tensor,
 	key_filter_lower = tf.math.cumsum(key_filter_lower,axis=-1,reverse=True)
 
 	key_filter_original = (1.0 - key_filter_upper) * key_filter_lower + (1.0 - key_filter_lower) * key_filter_upper
-	key_filter = tf.tile(tf.expand_dims(key_filter_original,axis=-1),[1,1,int(size_per_head/2)])
-	key_filter = tf.reshape(key_filter,[batch_size * from_seq_length,-1])
+	#key_filter = tf.tile(tf.expand_dims(key_filter_original,axis=-1),[1,1,int(size_per_head/2)])
+	#key_filter = tf.reshape(key_filter,[batch_size * from_seq_length,-1])
 	#key_layer = key_filter * key_layer
 
 	
@@ -863,13 +866,13 @@ def attention_layer(from_tensor,
 	attention_scores_unmasked = tf.matmul(query_layer, key_layer, transpose_b=True)
 	attention_scores_unmasked = tf.multiply(attention_scores_unmasked,
 									1.0 / math.sqrt(float(size_per_head)))
-	'''
+	
 	attention_filter = tf.matmul(query_filter, key_filters, transpose_b=True)
-	attention_filter = tf.multiply(attention_filters,
+	attention_filter = tf.multiply(attention_filter,
 									1.0 / math.sqrt(float(dependency_size)))
 
 	attention_scores = attention_scores + attention_filter
-	'''
+	
 
 	if attention_mask is not None:
 		# `attention_mask` = [B, 1, F, T]
@@ -927,7 +930,7 @@ def attention_layer(from_tensor,
 				context_layer,
 				[batch_size, from_seq_length, num_attention_heads * size_per_head])
 
-	return (context_layer,query_filter,key_filter,attention_scores_unmasked)
+	return (context_layer,query_filter,key_filter,attention_scores_unmasked,attention_filter)
 
 
 def transformer_model(input_tensor,
@@ -1025,7 +1028,7 @@ def transformer_model(input_tensor,
 		with tf.variable_scope("attention"):
 			attention_heads = []
 			with tf.variable_scope("self"):
-				(attention_head, query_filter, key_filter,attention_scores) = attention_layer(
+				(attention_head, query_filter, key_filter,attention_scores,attention_filter) = attention_layer(
 							from_tensor=layer_input,
 							to_tensor=layer_input,
 							layer_idx=layer_idx,

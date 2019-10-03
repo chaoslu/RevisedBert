@@ -772,14 +772,14 @@ def attention_layer(from_tensor,
 	# query filters
 	query_filter_upper = tf.layers.dense(
 		from_tensor_2d,
-		num_attention_heads * dependency_size
+		num_attention_heads * dependency_size,
 		activation=query_act,
 		name="query_filter_upper",
 		kernel_initializer=create_initializer(initializer_range),
 		reuse=tf.AUTO_REUSE)
 	query_filter_lower = tf.layers.dense(
 		from_tensor_2d,
-		num_attention_heads * dependency_size
+		num_attention_heads * dependency_size,
 		activation=query_act,
 		name="query_filter_lower",
 		kernel_initializer=create_initializer(initializer_range),
@@ -788,7 +788,7 @@ def attention_layer(from_tensor,
 	# key filters
 	key_filter_upper = tf.layers.dense(
 		to_tensor_2d,
-		num_attention_heads * dependency_size
+		num_attention_heads * dependency_size,
 		activation=key_act,
 		name="key_filter_upper",
 		kernel_initializer=create_initializer(initializer_range),
@@ -796,7 +796,7 @@ def attention_layer(from_tensor,
 
 	key_filter_lower = tf.layers.dense(
 		to_tensor_2d,
-		dnum_attention_heads * dependency_size
+		num_attention_heads * dependency_size,
 		activation=key_act,
 		name="key_filter_lower",
 		kernel_initializer=create_initializer(initializer_range),

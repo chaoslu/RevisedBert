@@ -871,7 +871,7 @@ def attention_layer(from_tensor,
 	attention_filter = tf.multiply(attention_filter,
 									1.0 / math.sqrt(float(dependency_size)))
 
-	attention_scores = attention_scores + attention_filter
+	attention_scores = attention_scores_unmasked + attention_filter
 	
 
 	if attention_mask is not None:

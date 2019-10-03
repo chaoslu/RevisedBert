@@ -1067,12 +1067,10 @@ def transformer_model(input_tensor,
 
 		query_outputs = []
 		for layer_query in all_layer_queries:
-			query_output = reshape_from_matrix(layer_query, input_shape)
 			query_outputs.append(query_output)
 
 		key_outputs = []
 		for layer_key in all_layer_keys:
-			key_output = reshape_from_matrix(layer_key, input_shape)
 			key_outputs.append(key_output)
 
 		attention_outputs = []

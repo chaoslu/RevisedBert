@@ -1067,11 +1067,11 @@ def transformer_model(input_tensor,
 
 		query_outputs = []
 		for layer_query in all_layer_queries:
-			query_outputs.append(query_output)
+			query_outputs.append(layer_query)
 
 		key_outputs = []
 		for layer_key in all_layer_keys:
-			key_outputs.append(key_output)
+			key_outputs.append(layer_key)
 
 		attention_outputs = []
 		for layer_attention in all_layer_attentions:

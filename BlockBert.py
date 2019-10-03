@@ -768,67 +768,39 @@ def attention_layer(from_tensor,
 			name="value",
 			kernel_initializer=create_initializer(initializer_range))
 
-	if layer_idx < num_segment_attention_layers:
-		# query filters
-		query_filter_upper = tf.layers.dense(
-			from_tensor_2d,
-			dependency_size,
-			activation=query_act,
-			name="query_filter_upper",
-			kernel_initializer=create_initializer(initializer_range),
-			reuse=tf.AUTO_REUSE)
-		query_filter_lower = tf.layers.dense(
-			from_tensor_2d,
-			dependency_size,
-			activation=query_act,
-			name="query_filter_lower",
-			kernel_initializer=create_initializer(initializer_range),
-			reuse=tf.AUTO_REUSE)
+	
+	# query filters
+	query_filter_upper = tf.layers.dense(
+		from_tensor_2d,
+		num_attention_heads * dependency_size
+		activation=query_act,
+		name="query_filter_upper",
+		kernel_initializer=create_initializer(initializer_range),
+		reuse=tf.AUTO_REUSE)
+	query_filter_lower = tf.layers.dense(
+		from_tensor_2d,
+		num_attention_heads * dependency_size
+		activation=query_act,
+		name="query_filter_lower",
+		kernel_initializer=create_initializer(initializer_range),
+		reuse=tf.AUTO_REUSE)
 
-		# key filters
-		key_filter_upper = tf.layers.dense(
-			from_tensor_2d,
-			dependency_size,
-			activation=key_act,
-			name="key_filter_upper",
-			kernel_initializer=create_initializer(initializer_range),
-			reuse=tf.AUTO_REUSE)
+	# key filters
+	key_filter_upper = tf.layers.dense(
+		to_tensor_2d,
+		num_attention_heads * dependency_size
+		activation=key_act,
+		name="key_filter_upper",
+		kernel_initializer=create_initializer(initializer_range),
+		reuse=tf.AUTO_REUSE)
 
-		key_filter_lower = tf.layers.dense(
-			from_tensor_2d,
-			dependency_size,
-			activation=key_act,
-			name="key_filter_lower",
-			kernel_initializer=create_initializer(initializer_range),
-			reuse=tf.AUTO_REUSE)
-	else:
-		with tf.variable_scope("layer_%d" % layer_idx):
-			query_filter_upper = tf.layers.dense(
-			from_tensor_2d,
-			dependency_size,
-			activation=query_act,
-			name="query_filter_upper",
-			kernel_initializer=create_initializer(initializer_range))
-
-			query_filter_lower = tf.layers.dense(
-			from_tensor_2d,
-			dependency_size,
-			activation=query_act,
-			name="query_filter_lower",
-			kernel_initializer=create_initializer(initializer_range))
-
-			key_filter_upper = tf.layers.dense(
-			from_tensor_2d,
-			dependency_size,
-			activation=key_act,
-			name="key_filter_upper",
-			kernel_initializer=create_initializer(initializer_range))
-			key_filter_lower = tf.layers.dense(
-			from_tensor_2d,
-			dependency_size,
-			activation=key_act,
-			name="key_filter_lower",
-			kernel_initializer=create_initializer(initializer_range))
+	key_filter_lower = tf.layers.dense(
+		to_tensor_2d,
+		dnum_attention_heads * dependency_size
+		activation=key_act,
+		name="key_filter_lower",
+		kernel_initializer=create_initializer(initializer_range),
+		reuse=tf.AUTO_REUSE)
 
 	query_filter_upper = tf.nn.softmax(query_filter_upper)
 	query_filter_upper = tf.math.cumsum(query_filter_upper,axis=-1,reverse=True)
@@ -858,6 +830,12 @@ def attention_layer(from_tensor,
 	# `key_layer` = [B, N, T, H]
 	key_layer = transpose_for_scores(key_layer, batch_size, num_attention_heads,
 									 to_seq_length, size_per_head)
+
+	query_filter = transpose_for_scores(query_filter, batch_size, num_attention_heads, 
+									   from_seq_length, dependency_size)
+	key_filter = transpose_for_scores(key_layer, batch_size, num_attention_heads,
+									 to_seq_length, dependency_size)
+
 
 
 	# Take the dot product between "query" and "key" to get the raw

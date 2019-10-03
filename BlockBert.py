@@ -997,6 +997,7 @@ def transformer_model(input_tensor,
 	all_layer_queries = []
 	all_layer_keys = []
 	all_layer_attentions = []
+	all_layer_attention_filters = []
 	for layer_idx in range(num_hidden_layers):
 		#with tf.variable_scope("layer_%d" % layer_idx):
 		layer_input = prev_output
@@ -1079,7 +1080,7 @@ def transformer_model(input_tensor,
 			attention_outputs.append(layer_attention)
 
 		attention_filter_outputs = []
-		for layer_attention_filter in all_layer_attentions:
+		for layer_attention_filter in all_layer_attention_filters:
 			attention_filter_outputs.append(layer_attention_filter)
 
 

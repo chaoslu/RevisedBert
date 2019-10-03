@@ -1064,6 +1064,7 @@ def transformer_model(input_tensor,
 		all_layer_queries.append(query_filter)
 		all_layer_keys.append(key_filter)
 		all_layer_attentions.append(attention_scores)
+		all_layer_attention_filters.append(attention_filter)
 
 		query_outputs = []
 		for layer_query in all_layer_queries:
@@ -1077,16 +1078,20 @@ def transformer_model(input_tensor,
 		for layer_attention in all_layer_attentions:
 			attention_outputs.append(layer_attention)
 
+		attention_filter_outputs = []
+		for layer_attention_filter in all_layer_attentions:
+			attention_filter_outputs.append(layer_attention_filter)
+
 
 	if do_return_all_layers:
 		final_outputs = []
 		for layer_output in all_layer_outputs:
 			final_output = reshape_from_matrix(layer_output, input_shape)
 			final_outputs.append(final_output)
-		return (final_outputs,query_outputs,key_outputs,attention_outputs)
+		return (final_outputs,query_outputs,key_outputs,attention_outputs,attention_filter_outputs)
 	else:
 		final_output = reshape_from_matrix(prev_output, input_shape)
-		return (final_output,query_outputs,key_outputs,attention_outputs)
+		return (final_output,query_outputs,key_outputs,attention_outputs,attention_filter_outputs)
 
 
 def get_shape_list(tensor, expected_rank=None, name=None):

@@ -823,7 +823,7 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
 		per_example_loss = -tf.reduce_sum(one_hot_labels * log_probs, axis=-1)
 		loss = tf.reduce_mean(per_example_loss)
 
-		return (loss, per_example_loss, logits, probabilities, query_filter, key_filter, attention_scores)
+		return (loss, per_example_loss, logits, probabilities, query_filter, key_filter, attention_scores, attention_filters)
 
 
 def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
@@ -850,7 +850,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 
 		is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
-		(total_loss, per_example_loss, logits, probabilities, query_filter, key_filter, attention_scores) = create_model(
+		(total_loss, per_example_loss, logits, probabilities, query_filter, key_filter,
+		 attention_scores, attention_filters) = create_model(
 				bert_config, is_training, input_ids, input_mask, segment_ids, label_ids,
 				num_labels, use_one_hot_embeddings)
 

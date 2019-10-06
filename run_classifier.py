@@ -1255,10 +1255,10 @@ def main(_):
 				if i >= num_actual_predict_examples:
 					break
 				tf.logging.info("enter into the query \n")
-				atttention_filters = prediction["atttention_filters"]
+				attention_filters = prediction["attention_filters"]
 				#(from_length,hsize) = query_filter.size()
 				writer.write("sentence %d:\n\n" % i)
-				for j,head in enumerate(atttention_filters):
+				for j,head in enumerate(attention_filters):
 					writer.write("head %d:\n\n" % j)
 					for word in head:
 						vec_line = "\t".join([str(num) for num in word]) + "\n\n"

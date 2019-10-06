@@ -380,7 +380,7 @@ class QqpProcessor(DataProcessor):
 	def get_test_examples(self, data_dir):
 		"""See base class."""
 		return self._create_examples(
-				self._read_tsv(os.path.join(data_dir, "toy_test.tsv")), "test")
+				self._read_tsv(os.path.join(data_dir, "test.tsv")), "test")
 
 	def get_labels(self):
 		"""See base class."""
@@ -794,6 +794,8 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
 	key_filter = key_filter[2]
 	attention_scores = model.get_attention_scores()
 	attention_scores = attention_scores[2]
+	attention_filters = model.get_attention_filter()
+	attention_filters = attention_filters[2]
 
 	output_layer = model.get_pooled_output()
 
@@ -919,7 +921,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 		else:
 			output_spec = tf.contrib.tpu.TPUEstimatorSpec(
 					mode=mode,
-					predictions={"att_scores": attention_scores},
+					#predictions={"probabilities": probabilities},
+					predictions={"attention_filters":attention_filters},
 					scaffold_fn=scaffold_fn)
 		return output_spec
 
@@ -1183,7 +1186,8 @@ def main(_):
 		output_predict_file = os.path.join(FLAGS.output_dir, "test_results.tsv")
 		output_query_file = os.path.join(FLAGS.output_dir, "query.tsv")
 		output_key_file = os.path.join(FLAGS.output_dir, "key.tsv")
-		output_attention_file = os.path.join(FLAGS.output_dir, "attention.tsv")
+		output_att_score_file = os.path.join(FLAGS.output_dir, "att_scores.tsv")
+		output_att_filter_file = os.path.join(FLAGS.output_dir, "att_filters.tsv")
 
 
 		'''
@@ -1258,6 +1262,8 @@ def main(_):
 						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 						writer.write(vec_line)
 				writer.write("\n\n")
+
+
 		
 
 

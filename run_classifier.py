@@ -1248,16 +1248,17 @@ def main(_):
 				writer.write("\n\n")
 		
 		'''
-		with tf.gfile.GFile(output_attention_file, "w") as writer:
+		with tf.gfile.GFile(output_att_filter_file, "w") as writer:
 			tf.logging.info("enter into the writer \n")
 			for (i, prediction) in enumerate(result):
 				if i >= num_actual_predict_examples:
 					break
 				tf.logging.info("enter into the query \n")
-				attention_scores = prediction["att_scores"]
+				atttention_filters = prediction["atttention_filters"]
 				#(from_length,hsize) = query_filter.size()
 				writer.write("sentence %d:\n\n" % i)
-				for head in attention_scores:
+				for j,head in enumerate(atttention_filters):
+					writer.write("head %d:\n\n" % j)
 					for word in head:
 						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 						writer.write(vec_line)

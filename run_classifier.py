@@ -1228,8 +1228,9 @@ def main(_):
 				writer.write("sentence %d:\n\n" % i)
 				for j,head in enumerate(query_filter):
 					writer.write("head %d:\n\n" % j)
-					for word,k in enumerate(head):
-						writer.write("word %d:\n\n" % k)
+					k = 0
+					for word in head:
+						writer.write("word %d:\n\n" % k++)
 						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 						writer.write(vec_line)
 				writer.write("\n\n")
@@ -1246,8 +1247,9 @@ def main(_):
 				writer.write("sentence %d:\n\n" % i)
 				for j,head in enumerate(key_filter):
 					writer.write("head %d:\n\n" % j)
-					for word,k in enumerate(head):
-						writer.write("word %d:\n\n" % k)
+					k = 0
+					for word in head:
+						writer.write("word %d:\n\n" % k++)
 						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 						writer.write(vec_line)
 				writer.write("\n\n")
@@ -1265,8 +1267,9 @@ def main(_):
 				writer.write("sentence %d:\n\n" % i)
 				for j,head in enumerate(attention_scores):
 					writer.write("head %d:\n\n" % j)
-					for word,k in enumerate(head):
-						writer.write("word %d:\n\n" % k)
+					k = 0
+					for word in head:
+						writer.write("word %d:\n\n" % k++)
 						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 						writer.write(vec_line)
 				writer.write("\n\n")
@@ -1282,8 +1285,9 @@ def main(_):
 				writer.write("sentence %d:\n\n" % i)
 				for j,head in enumerate(attention_filters):
 					writer.write("head %d:\n\n" % j)
-					for word,k in enumerate(head):
-						writer.write("word %d:\n\n" % k)
+					k = 0
+					for word in head:
+						writer.write("word %d:\n\n" % k++)
 						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 						writer.write(vec_line)
 				writer.write("\n\n")

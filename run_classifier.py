@@ -923,7 +923,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 			output_spec = tf.contrib.tpu.TPUEstimatorSpec(
 					mode=mode,
 					#predictions={"probabilities": probabilities},
-					predictions={"query_filter": query_filter}
+					predictions={"query_filter": query_filter},
 					#predictions={"key_filter": key_filter}
 					#predictions={"attention_filters": attention_filters},
 					#predictions={"attention_scores": attention_scores},

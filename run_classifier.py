@@ -923,9 +923,9 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 			output_spec = tf.contrib.tpu.TPUEstimatorSpec(
 					mode=mode,
 					#predictions={"probabilities": probabilities},
-					predictions={"query_filter": query_filter},
+					#predictions={"query_filter": query_filter},
 					#predictions={"key_filter": key_filter},
-					#predictions={"attention_filters": attention_filters},
+					predictions={"attention_filters": attention_filters},
 					#predictions={"attention_scores": attention_scores},
 					scaffold_fn=scaffold_fn)
 		return output_spec
@@ -1217,7 +1217,7 @@ def main(_):
 				num_written_lines += 1
 		assert num_written_lines == num_actual_predict_examples
 		
-		'''
+		
 		with tf.gfile.GFile(output_query_file, "w") as writer:
 			tf.logging.info("enter into the writer \n")
 			for (i, prediction) in enumerate(result):
@@ -1236,7 +1236,7 @@ def main(_):
 						writer.write(vec_line)
 				writer.write("\n\n")
 
-		'''
+		
 		with tf.gfile.GFile(output_key_file, "w") as writer:
 			tf.logging.info("enter into the writer \n")
 			for (i, prediction) in enumerate(result):
@@ -1275,7 +1275,7 @@ def main(_):
 						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 						writer.write(vec_line)
 				writer.write("\n\n")
-		
+		'''
 		with tf.gfile.GFile(output_att_filter_file, "w") as writer:
 			tf.logging.info("enter into the writer \n")
 			for (i, prediction) in enumerate(result):
@@ -1294,7 +1294,7 @@ def main(_):
 						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 						writer.write(vec_line)
 				writer.write("\n\n")
-		'''
+		
 
 		
 

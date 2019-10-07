@@ -923,8 +923,10 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 			output_spec = tf.contrib.tpu.TPUEstimatorSpec(
 					mode=mode,
 					#predictions={"probabilities": probabilities},
+					predictions={"query_filter": query_filter}
+					#predictions={"key_filter": key_filter}
 					#predictions={"attention_filters": attention_filters},
-					predictions={"attention_scores": attention_scores},
+					#predictions={"attention_scores": attention_scores},
 					scaffold_fn=scaffold_fn)
 		return output_spec
 
@@ -1215,26 +1217,24 @@ def main(_):
 				num_written_lines += 1
 		assert num_written_lines == num_actual_predict_examples
 		
-
-		with tf.gfile.GFile(output_predict_file, "w") as writer:
+		'''
+		with tf.gfile.GFile(output_query_file, "w") as writer:
 			tf.logging.info("enter into the writer \n")
 			for (i, prediction) in enumerate(result):
-				print(prediction["query"])
 				if i >= num_actual_predict_examples:
 					break
 				tf.logging.info("enter into the query \n")
-
-				query_filter = prediction["query"]
-				#from_length,hsize = query_filter.size()
-
-				#tf.logging.info("the size of queries: %d,%d" %(from_length,hsize))
+				query_filter = prediction["query_filter"]
 				writer.write("sentence %d:\n\n" % i)
-				for word in query_filter:
-					vec_line = "\t".join([str(num) for num in word]) + "\n\n"
-					writer.write(vec_line)
+				for j,head in enumerate(query_filter):
+					writer.write("head %d:\n\n" % j)
+					for word,k in enumerate(head):
+						writer.write("word %d:\n\n" % k)
+						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
+						writer.write(vec_line)
 				writer.write("\n\n")
 
-		
+		'''
 		with tf.gfile.GFile(output_key_file, "w") as writer:
 			tf.logging.info("enter into the writer \n")
 			for (i, prediction) in enumerate(result):
@@ -1244,12 +1244,15 @@ def main(_):
 				key_filter = prediction["key"]
 				#(from_length,hsize) = query_filter.size()
 				writer.write("sentence %d:\n\n" % i)
-				for word in key_filter:
-					vec_line = "\t".join([str(num) for num in word]) + "\n\n"
-					writer.write(vec_line)
+				for j,head in enumerate(key_filter):
+					writer.write("head %d:\n\n" % j)
+					for word,k in enumerate(head):
+						writer.write("word %d:\n\n" % k)
+						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
+						writer.write(vec_line)
 				writer.write("\n\n")
 		
-		'''
+		
 
 		with tf.gfile.GFile(output_att_score_file, "w") as writer:
 			tf.logging.info("enter into the writer \n")
@@ -1262,11 +1265,12 @@ def main(_):
 				writer.write("sentence %d:\n\n" % i)
 				for j,head in enumerate(attention_scores):
 					writer.write("head %d:\n\n" % j)
-					for word in head:
+					for word,k in enumerate(head):
+						writer.write("word %d:\n\n" % k)
 						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 						writer.write(vec_line)
 				writer.write("\n\n")
-		'''
+		
 		with tf.gfile.GFile(output_att_filter_file, "w") as writer:
 			tf.logging.info("enter into the writer \n")
 			for (i, prediction) in enumerate(result):
@@ -1278,7 +1282,8 @@ def main(_):
 				writer.write("sentence %d:\n\n" % i)
 				for j,head in enumerate(attention_filters):
 					writer.write("head %d:\n\n" % j)
-					for word in head:
+					for word,k in enumerate(head):
+						writer.write("word %d:\n\n" % k)
 						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 						writer.write(vec_line)
 				writer.write("\n\n")

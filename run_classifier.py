@@ -1230,7 +1230,8 @@ def main(_):
 					writer.write("head %d:\n\n" % j)
 					k = 0
 					for word in head:
-						writer.write("word %d:\n\n" % k++)
+						writer.write("word %d:\n\n" % k)
+						k = k + 1
 						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 						writer.write(vec_line)
 				writer.write("\n\n")
@@ -1249,7 +1250,8 @@ def main(_):
 					writer.write("head %d:\n\n" % j)
 					k = 0
 					for word in head:
-						writer.write("word %d:\n\n" % k++)
+						writer.write("word %d:\n\n" % k)
+						k = k + 1
 						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 						writer.write(vec_line)
 				writer.write("\n\n")
@@ -1269,7 +1271,8 @@ def main(_):
 					writer.write("head %d:\n\n" % j)
 					k = 0
 					for word in head:
-						writer.write("word %d:\n\n" % k++)
+						writer.write("word %d:\n\n" % k)
+						k = k + 1
 						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 						writer.write(vec_line)
 				writer.write("\n\n")
@@ -1287,7 +1290,8 @@ def main(_):
 					writer.write("head %d:\n\n" % j)
 					k = 0
 					for word in head:
-						writer.write("word %d:\n\n" % k++)
+						writer.write("word %d:\n\n" % k)
+						k = k + 1
 						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
 						writer.write(vec_line)
 				writer.write("\n\n")

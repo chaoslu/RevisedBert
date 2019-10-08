@@ -76,6 +76,8 @@ flags.DEFINE_bool(
 		"do_predict", False,
 		"Whether to run the model in inference mode on the test set.")
 
+flags.DEFINE_string("predict_op", "query", "the internel ops to be inspected")
+
 flags.DEFINE_integer("train_batch_size", 32, "Total batch size for training.")
 
 flags.DEFINE_integer("eval_batch_size", 8, "Total batch size for eval.")
@@ -788,7 +790,7 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
 	#
 	# If you want to use the token-level output, use model.get_sequence_output()
 	# instead.
-	out_layer_num = 0
+	out_layer_num = 2
 
 	query_filter = model.get_query_filter()
 	query_filter = query_filter[out_layer_num]
@@ -857,6 +859,19 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 				bert_config, is_training, input_ids, input_mask, segment_ids, label_ids,
 				num_labels, use_one_hot_embeddings)
 
+		 if flags.predict_op == "query":
+		 	out_op = query_filter
+
+		 elif flags.predict_op == "key":
+		 	out_op = key_filter
+
+		 elif flags.predict_op == "score":
+		 	out_op = attention_scores
+
+		 elif flags.predict_op == "filter":
+		 	out_op = attention_filters
+
+		# do variablles initialization
 		tvars = tf.trainable_variables()
 		initialized_variable_names = {}
 
@@ -925,10 +940,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 			output_spec = tf.contrib.tpu.TPUEstimatorSpec(
 					mode=mode,
 					#predictions={"probabilities": probabilities},
-					predictions={"query_filter": query_filter},
-					#predictions={"key_filter": key_filter},
-					#predictions={"attention_filters": attention_filters},
-					#predictions={"attention_scores": attention_scores},
+					predictions={"predict_op": out_op},
 					scaffold_fn=scaffold_fn)
 		return output_spec
 
@@ -1189,11 +1201,23 @@ def main(_):
 
 		result = estimator.predict(input_fn=predict_input_fn)
 
-		output_predict_file = os.path.join(FLAGS.output_dir, "test_results.tsv")
-		output_query_file = os.path.join(FLAGS.output_dir, "query.tsv")
-		output_key_file = os.path.join(FLAGS.output_dir, "key.tsv")
-		output_att_score_file = os.path.join(FLAGS.output_dir, "att_scores.tsv")
-		output_att_filter_file = os.path.join(FLAGS.output_dir, "att_filters.tsv")
+		
+
+
+		if flags.predict_op == "query":
+		 	out_file = os.path.join(FLAGS.output_dir, "query.tsv")
+
+		elif flags.predict_op == "key":
+		 	out_file = os.path.join(FLAGS.output_dir, "key.tsv")
+
+		elif flags.predict_op == "score":
+		 	out_file = os.path.join(FLAGS.output_dir, "att_scores.tsv")
+
+		elif flags.predict_op == "filter":
+		 	out_file = os.path.join(FLAGS.output_dir, "att_filters.tsv")
+		
+		else:
+			out_file = os.path.join(FLAGS.output_dir, "test_results.tsv")
 
 
 		'''
@@ -1220,15 +1244,15 @@ def main(_):
 		assert num_written_lines == num_actual_predict_examples
 		'''
 	
-		with tf.gfile.GFile(output_query_file, "w") as writer:
+		with tf.gfile.GFile(out_file, "w") as writer:
 			tf.logging.info("enter into the writer \n")
 			for (i, prediction) in enumerate(result):
 				if i >= num_actual_predict_examples:
 					break
 				tf.logging.info("enter into the query \n")
-				query_filter = prediction["query_filter"]
+				predict_op = prediction["predict_op"]
 				writer.write("sentence %d:\n\n" % i)
-				for j,head in enumerate(query_filter):
+				for j,head in enumerate(predict_op):
 					writer.write("head %d:\n\n" % j)
 					k = 0
 					for word in head:
@@ -1238,64 +1262,7 @@ def main(_):
 						writer.write(vec_line)
 				writer.write("\n\n")
 
-		'''
-		with tf.gfile.GFile(output_key_file, "w") as writer:
-			tf.logging.info("enter into the writer \n")
-			for (i, prediction) in enumerate(result):
-				if i >= num_actual_predict_examples:
-					break
-				tf.logging.info("enter into the query \n")
-				key_filter = prediction["key_filter"]
-				writer.write("sentence %d:\n\n" % i)
-				for j,head in enumerate(key_filter):
-					writer.write("head %d:\n\n" % j)
-					k = 0
-					for word in head:
-						writer.write("word %d:\n\n" % k)
-						k = k + 1
-						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
-						writer.write(vec_line)
-				writer.write("\n\n")
 		
-		
-		
-		with tf.gfile.GFile(output_att_score_file, "w") as writer:
-			tf.logging.info("enter into the writer \n")
-			for (i, prediction) in enumerate(result):
-				if i >= num_actual_predict_examples:
-					break
-				tf.logging.info("enter into the query \n")
-				attention_scores = prediction["attention_scores"]
-				writer.write("sentence %d:\n\n" % i)
-				for j,head in enumerate(attention_scores):
-					writer.write("head %d:\n\n" % j)
-					k = 0
-					for word in head:
-						writer.write("word %d:\n\n" % k)
-						k = k + 1
-						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
-						writer.write(vec_line)
-				writer.write("\n\n")
-		
-		with tf.gfile.GFile(output_att_filter_file, "w") as writer:
-			tf.logging.info("enter into the writer \n")
-			for (i, prediction) in enumerate(result):
-				if i >= num_actual_predict_examples:
-					break
-				tf.logging.info("enter into the query \n")
-				attention_filters = prediction["attention_filters"]
-				#(from_length,hsize) = query_filter.size()
-				writer.write("sentence %d:\n\n" % i)
-				for j,head in enumerate(attention_filters):
-					writer.write("head %d:\n\n" % j)
-					k = 0
-					for word in head:
-						writer.write("word %d:\n\n" % k)
-						k = k + 1
-						vec_line = "\t".join([str(num) for num in word]) + "\n\n"
-						writer.write(vec_line)
-				writer.write("\n\n")
-		'''
 
 		
 

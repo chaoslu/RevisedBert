@@ -925,8 +925,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 					#predictions={"probabilities": probabilities},
 					#predictions={"query_filter": query_filter},
 					#predictions={"key_filter": key_filter},
-					#predictions={"attention_filters": attention_filters},
-					predictions={"attention_scores": attention_scores},
+					predictions={"attention_filters": attention_filters},
+					#predictions={"attention_scores": attention_scores},
 					scaffold_fn=scaffold_fn)
 		return output_spec
 

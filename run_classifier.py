@@ -859,16 +859,16 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 				bert_config, is_training, input_ids, input_mask, segment_ids, label_ids,
 				num_labels, use_one_hot_embeddings)
 
-		 if flags.predict_op == "query":
-		 	out_op = query_filter
+		if flags.predict_op == "query":
+			out_op = query_filter
 
-		 elif flags.predict_op == "key":
-		 	out_op = key_filter
+		elif flags.predict_op == "key":
+			out_op = key_filter
 
-		 elif flags.predict_op == "score":
+		elif flags.predict_op == "score":
 		 	out_op = attention_scores
 
-		 elif flags.predict_op == "filter":
+		elif flags.predict_op == "filter":
 		 	out_op = attention_filters
 
 		# do variablles initialization

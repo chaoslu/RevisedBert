@@ -802,6 +802,15 @@ def attention_layer(from_tensor,
 		kernel_initializer=create_initializer(initializer_range),
 		reuse=tf.AUTO_REUSE)
 
+	query_filter_upper = transpose_for_scores(query_filter_upper, batch_size, num_attention_heads, 
+									   from_seq_length, dependency_size)
+	query_filter_lower = transpose_for_scores(query_filter_lower, batch_size, num_attention_heads, 
+									   from_seq_length, dependency_size)
+	key_filter_upper = transpose_for_scores(key_filter_upper, batch_size, num_attention_heads,
+									 to_seq_length, dependency_size)
+	key_filter_lower = transpose_for_scores(key_filter_lower, batch_size, num_attention_heads,
+									 to_seq_length, dependency_size)
+
 	query_filter_upper = tf.nn.softmax(query_filter_upper)
 	query_filter_upper = tf.math.cumsum(query_filter_upper,axis=-1,reverse=True)
 	query_filter_lower = tf.nn.softmax(query_filter_lower)
@@ -831,10 +840,7 @@ def attention_layer(from_tensor,
 	key_layer = transpose_for_scores(key_layer, batch_size, num_attention_heads,
 									 to_seq_length, size_per_head)
 
-	query_filter = transpose_for_scores(query_filter, batch_size, num_attention_heads, 
-									   from_seq_length, dependency_size)
-	key_filter = transpose_for_scores(key_layer, batch_size, num_attention_heads,
-									 to_seq_length, dependency_size)
+	
 
 
 

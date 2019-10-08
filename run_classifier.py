@@ -859,16 +859,16 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 				bert_config, is_training, input_ids, input_mask, segment_ids, label_ids,
 				num_labels, use_one_hot_embeddings)
 
-		if flags.predict_op == "query":
+		if FLAGS.predict_op == "query":
 			out_op = query_filter
 
-		elif flags.predict_op == "key":
+		elif FLAGS.predict_op == "key":
 			out_op = key_filter
 
-		elif flags.predict_op == "score":
+		elif FLAGS.predict_op == "score":
 		 	out_op = attention_scores
 
-		elif flags.predict_op == "filter":
+		elif FLAGS.predict_op == "filter":
 		 	out_op = attention_filters
 
 		# do variablles initialization
@@ -1204,16 +1204,16 @@ def main(_):
 		
 
 
-		if flags.predict_op == "query":
+		if FLAGS.predict_op == "query":
 		 	out_file = os.path.join(FLAGS.output_dir, "query.tsv")
 
-		elif flags.predict_op == "key":
+		elif FLAGS.predict_op == "key":
 		 	out_file = os.path.join(FLAGS.output_dir, "key.tsv")
 
-		elif flags.predict_op == "score":
+		elif FLAGS.predict_op == "score":
 		 	out_file = os.path.join(FLAGS.output_dir, "att_scores.tsv")
 
-		elif flags.predict_op == "filter":
+		elif FLAGS.predict_op == "filter":
 		 	out_file = os.path.join(FLAGS.output_dir, "att_filters.tsv")
 		
 		else:

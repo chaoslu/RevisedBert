@@ -76,7 +76,7 @@ flags.DEFINE_bool(
 		"do_predict", False,
 		"Whether to run the model in inference mode on the test set.")
 
-flags.DEFINE_string("predict_op", "query", "the internel ops to be inspected")
+flags.DEFINE_string("predict_op", "key", "the internel ops to be inspected")
 
 flags.DEFINE_integer("train_batch_size", 32, "Total batch size for training.")
 

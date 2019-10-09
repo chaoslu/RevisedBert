@@ -851,7 +851,7 @@ def attention_layer(from_tensor,
 	attention_scores_unmasked = tf.multiply(attention_scores_unmasked,
 									1.0 / math.sqrt(float(size_per_head)))
 	
-	#attention_filter = tf.matmul(query_filter, key_filter, transpose_b=True)
+	attention_filter = tf.matmul(query_filter, key_filter, transpose_b=True)
 
 
 	attention_scores = attention_scores_unmasked

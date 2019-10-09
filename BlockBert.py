@@ -833,7 +833,14 @@ def attention_layer(from_tensor,
 	key_layer = transpose_for_scores(key_layer, batch_size, num_attention_heads,
 									 to_seq_length, size_per_head)
 
+
+	query_filter = transpose_for_scores(query_filter, batch_size, num_attention_heads, 
+									   from_seq_length, size_per_head)
+	# `key_layer` = [B, N, T, H]
+	key_filter = transpose_for_scores(key_filter, batch_size, num_attention_heads,
+									 to_seq_length, size_per_head)
 	
+	'''
 	query_filter_upper = transpose_for_scores(query_filter_upper, batch_size, num_attention_heads, 
 									   from_seq_length, dependency_size)
 	query_filter_lower = transpose_for_scores(query_filter_lower, batch_size, num_attention_heads, 
@@ -842,7 +849,7 @@ def attention_layer(from_tensor,
 									 to_seq_length, dependency_size)
 	key_filter_lower = transpose_for_scores(key_filter_lower, batch_size, num_attention_heads,
 									 to_seq_length, dependency_size)
-
+	'''
 
 	# Take the dot product between "query" and "key" to get the raw
 	# attention scores.

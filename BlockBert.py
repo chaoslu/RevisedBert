@@ -84,7 +84,6 @@ class BertConfig(object):
 		self.max_position_embeddings = max_position_embeddings
 		self.type_vocab_size = type_vocab_size
 		self.initializer_range = initializer_range
-		self.first_pretraining = first_pretraining
 
 	@classmethod
 	def from_dict(cls, json_object):
@@ -336,7 +335,7 @@ def get_activation(activation_string):
 		raise ValueError("Unsupported activation: %s" % act)
 
 
-def get_assignment_map_from_checkpoint(tvars, init_checkpoint, first_pretraining):
+def get_assignment_map_from_checkpoint(tvars, init_checkpoint):
 	"""Compute the union of the current variables and checkpoint variables."""
 	assignment_map = {}
 	initialized_variable_names = {}

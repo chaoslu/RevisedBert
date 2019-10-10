@@ -44,7 +44,8 @@ class BertConfig(object):
 							 attention_probs_dropout_prob=0.1,
 							 max_position_embeddings=512,
 							 type_vocab_size=16,
-							 initializer_range=0.02):
+							 initializer_range=0.02,
+							 first_pretraining=False):
 		"""Constructs BertConfig.
 
 		Args:
@@ -84,6 +85,7 @@ class BertConfig(object):
 		self.max_position_embeddings = max_position_embeddings
 		self.type_vocab_size = type_vocab_size
 		self.initializer_range = initializer_range
+		self.first_pretraining = first_pretraining
 
 	@classmethod
 	def from_dict(cls, json_object):
@@ -338,7 +340,7 @@ def get_activation(activation_string):
 		raise ValueError("Unsupported activation: %s" % act)
 
 
-def get_assignment_map_from_checkpoint(tvars, init_checkpoint):
+def get_assignment_map_from_checkpoint(tvars, init_checkpoint, first_pretraining):
 	"""Compute the union of the current variables and checkpoint variables."""
 	assignment_map = {}
 	initialized_variable_names = {}

@@ -77,6 +77,8 @@ flags.DEFINE_bool(
 		"Whether to run the model in inference mode on the test set.")
 
 flags.DEFINE_string("predict_op", "filter", "the internel ops to be inspected")
+flags.DEFINE_integer("out_layer", 2, "the layer to be inspected")
+
 
 flags.DEFINE_integer("train_batch_size", 32, "Total batch size for training.")
 
@@ -790,7 +792,7 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
 	#
 	# If you want to use the token-level output, use model.get_sequence_output()
 	# instead.
-	out_layer_num = 1
+	out_layer_num = FLAGS.out_layer
 
 	query_filter = model.get_query_filter()
 	query_filter = query_filter[out_layer_num]

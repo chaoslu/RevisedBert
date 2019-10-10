@@ -1036,7 +1036,7 @@ def transformer_model(input_tensor,
 		with tf.variable_scope("attention"):
 			attention_heads = []
 			with tf.variable_scope("self"):
-				(attention_head, query_filter, key_filter,attention_scores,attention_filter) = attention_layer(
+				(attention_head, query_filter, key_filter,attention_scores) = attention_layer(
 							from_tensor=layer_input,
 							to_tensor=layer_input,
 							layer_idx=layer_idx,

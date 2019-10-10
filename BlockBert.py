@@ -44,8 +44,7 @@ class BertConfig(object):
 							 attention_probs_dropout_prob=0.1,
 							 max_position_embeddings=512,
 							 type_vocab_size=16,
-							 initializer_range=0.02,
-							 first_pretraining=False):
+							 initializer_range=0.02):
 		"""Constructs BertConfig.
 
 		Args:
@@ -85,7 +84,7 @@ class BertConfig(object):
 		self.max_position_embeddings = max_position_embeddings
 		self.type_vocab_size = type_vocab_size
 		self.initializer_range = initializer_range
-		self.first_pretraining = first_pretraining
+
 
 	@classmethod
 	def from_dict(cls, json_object):
@@ -213,7 +212,7 @@ class BlockBertModel(object):
 						sent_wise_mask)
 				# Run the stacked transformer.
 				# `sequence_output` shape = [batch_size, seq_length, hidden_size].
-				(self.all_encoder_layers, self.query_filter, self.key_filter,self.attention_scores,self.attention_filter) = transformer_model(
+				(self.all_encoder_layers, self.query_filter, self.key_filter,self.attention_scores) = transformer_model(
 						input_tensor=self.embedding_output,
 						attention_mask=attention_mask,
 						segment_attention_mask=sentences_attention_mask,
@@ -283,9 +282,7 @@ class BlockBertModel(object):
 	def get_attention_scores(self):
 		return self.attention_scores
 
-	def get_attention_filter(self):
-		return self.attention_filter
-
+	
 
 def gelu(x):
 	"""Gaussian Error Linear Unit.
@@ -340,7 +337,7 @@ def get_activation(activation_string):
 		raise ValueError("Unsupported activation: %s" % act)
 
 
-def get_assignment_map_from_checkpoint(tvars, init_checkpoint, first_pretraining):
+def get_assignment_map_from_checkpoint(tvars, init_checkpoint):
 	"""Compute the union of the current variables and checkpoint variables."""
 	assignment_map = {}
 	initialized_variable_names = {}
@@ -360,7 +357,7 @@ def get_assignment_map_from_checkpoint(tvars, init_checkpoint, first_pretraining
 		(name, var) = (x[0], x[1])
 		if name not in name_to_variable:
 
-			
+			'''
 			new_name = ""
 			#tf.logging.info("%s\n" %name)
 
@@ -387,8 +384,8 @@ def get_assignment_map_from_checkpoint(tvars, init_checkpoint, first_pretraining
 					continue
 			else:
 				continue
-			
-			#continue
+			'''
+			continue
 		else:
 			assignment_map[name] = name
 			initialized_variable_names[name] = 1
@@ -746,7 +743,7 @@ def attention_layer(from_tensor,
 	from_tensor_2d = reshape_to_matrix(from_tensor)
 	to_tensor_2d = reshape_to_matrix(to_tensor)
 
-	
+	'''
 	with tf.variable_scope("layer_%d" % layer_idx):
 		# `query_layer` = [B*F, N*H]
 		query_layer = tf.layers.dense(
@@ -781,7 +778,7 @@ def attention_layer(from_tensor,
 		name="value",
 		kernel_initializer=create_initializer(initializer_range),
 		reuse=tf.AUTO_REUSE)
-	'''
+	
 	
 	# query filters
 	query_filter_upper = tf.layers.dense(
@@ -871,17 +868,17 @@ def attention_layer(from_tensor,
 	# Take the dot product between "query" and "key" to get the raw
 	# attention scores.
 	# `attention_scores` = [B, N, F, T]
-	attention_scores_unmasked = tf.matmul(query_layer, key_layer, transpose_b=True)
-	attention_scores_unmasked = tf.multiply(attention_scores_unmasked,
-									1.0 / math.sqrt(float(size_per_head)))
+	# attention_scores_unmasked = tf.matmul(query_layer, key_layer, transpose_b=True)
+	# attention_scores_unmasked = tf.multiply(attention_scores_unmasked,
+	#								1.0 / math.sqrt(float(size_per_head)))
 	
 	attention_filter = tf.matmul(query_filter, key_filter, transpose_b=True)
 
 
-	#attention_scores = tf.multiply(attention_scores,
-	#								1.0 / math.sqrt(float(size_per_head)))
+	attention_scores = tf.multiply(attention_scores,
+									1.0 / math.sqrt(float(size_per_head)))
 
-	attention_scores_unmasked = attention_scores_unmasked + attention_filter
+	#attention_scores_unmasked = attention_scores_unmasked + attention_filter
 	
 
 	if attention_mask is not None:
@@ -895,7 +892,7 @@ def attention_layer(from_tensor,
 
 		# Since we are adding it to the raw scores before the softmax, this is
 		# effectively the same as removing these entirely.
-		attention_scores = attention_scores_unmasked + adder
+		attention_scores = attention_scores + adder
 
 	
 	# segment wise mask tends to only allow tokens in the same sentence interacting 
@@ -940,7 +937,7 @@ def attention_layer(from_tensor,
 				context_layer,
 				[batch_size, from_seq_length, num_attention_heads * size_per_head])
 
-	return (context_layer,query_filter,key_filter,attention_scores,attention_filter)
+	return (context_layer,query_filter,key_filter,attention_scores)
 
 
 def transformer_model(input_tensor,
@@ -1029,7 +1026,7 @@ def transformer_model(input_tensor,
 	all_layer_queries = []
 	all_layer_keys = []
 	all_layer_attentions = []
-	all_layer_attention_filters = []
+	#all_layer_attention_filters = []
 	for layer_idx in range(num_hidden_layers):
 		#with tf.variable_scope("layer_%d" % layer_idx):
 		layer_input = prev_output
@@ -1110,18 +1107,18 @@ def transformer_model(input_tensor,
 		for layer_attention in all_layer_attentions:
 			attention_outputs.append(layer_attention)
 
-		
+		'''
 		attention_filter_outputs = []
 		for layer_attention_filter in all_layer_attention_filters:
 			attention_filter_outputs.append(layer_attention_filter)
-		
+		'''
 
 	if do_return_all_layers:
 		final_outputs = []
 		for layer_output in all_layer_outputs:
 			final_output = reshape_from_matrix(layer_output, input_shape)
 			final_outputs.append(final_output)
-		return (final_outputs,query_outputs,key_outputs,attention_outputs,attention_filter_outputs)
+		return (final_outputs,query_outputs,key_outputs,attention_outputs)
 	else:
 		final_output = reshape_from_matrix(prev_output, input_shape)
 		return (final_output,query_outputs,key_outputs,attention_outputs)

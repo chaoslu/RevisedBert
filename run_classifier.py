@@ -800,8 +800,10 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
 	key_filter = key_filter[out_layer_num]
 	attention_scores = model.get_attention_scores()
 	attention_scores = attention_scores[out_layer_num]
-	attention_filters = model.get_attention_filter()
-	attention_filters = attention_filters[out_layer_num]
+
+
+	#attention_filters = model.get_attention_filter()
+	#attention_filters = attention_filters[out_layer_num]
 
 	output_layer = model.get_pooled_output()
 
@@ -870,8 +872,6 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 		elif FLAGS.predict_op == "score":
 		 	out_op = attention_scores
 
-		elif FLAGS.predict_op == "filter":
-		 	out_op = attention_filters
 
 		# do variablles initialization
 		tvars = tf.trainable_variables()
@@ -1214,9 +1214,6 @@ def main(_):
 
 		elif FLAGS.predict_op == "score":
 		 	out_file = os.path.join(FLAGS.output_dir, "att_scores.tsv")
-
-		elif FLAGS.predict_op == "filter":
-		 	out_file = os.path.join(FLAGS.output_dir, "att_filters.tsv")
 		
 		else:
 			out_file = os.path.join(FLAGS.output_dir, "test_results.tsv")
